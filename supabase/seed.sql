@@ -5,8 +5,10 @@
 --   leo@bohio.test      dueño
 --   maria@bohio.test    dueña
 --   intruso@bohio.test  usuario autenticado SIN perfil: no debe ver nada (FR-080)
+--   ana@bohio.test      dueña recién creada con contraseña temporal: ve la guía
+--                       para cambiarla (como las cuentas de crear-dueno.yml)
 
-create function pg_temp.crear_usuario(p_id uuid, p_email text)
+create function pg_temp.crear_usuario(p_id uuid, p_email text, p_meta jsonb default '{}')
 returns void
 language sql
 as $$
@@ -17,7 +19,7 @@ as $$
   ) values (
     '00000000-0000-0000-0000-000000000000', p_id, 'authenticated', 'authenticated', p_email,
     extensions.crypt('bohio-local-123', extensions.gen_salt('bf')), now(),
-    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''
+    '{"provider":"email","providers":["email"]}', p_meta, now(), now(), '', '', '', ''
   );
   insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
   values (
@@ -30,10 +32,12 @@ $$;
 select pg_temp.crear_usuario('11111111-1111-4111-8111-111111111111', 'leo@bohio.test');
 select pg_temp.crear_usuario('22222222-2222-4222-8222-222222222222', 'maria@bohio.test');
 select pg_temp.crear_usuario('33333333-3333-4333-8333-333333333333', 'intruso@bohio.test');
+select pg_temp.crear_usuario('44444444-4444-4444-8444-444444444444', 'ana@bohio.test', '{"clave_temporal": true}');
 
 insert into public.perfiles (id, nombre) values
   ('11111111-1111-4111-8111-111111111111', 'Leo'),
-  ('22222222-2222-4222-8222-222222222222', 'María');
+  ('22222222-2222-4222-8222-222222222222', 'María'),
+  ('44444444-4444-4444-8444-444444444444', 'Ana');
 
 -- Lista de precios de ejemplo (docs/testing.md): docena 550, mínimo 6, suelta 50.
 update public.config_precios set precio_suelta = 50, precio_docena = 550, minimo_docena = 6, redondeo = 1;

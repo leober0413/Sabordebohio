@@ -1,6 +1,7 @@
 # Crea un dueño en producción (cuenta + perfil). No hay registro público
 # (FR-080), así que es la única forma de dar acceso. Manual.
-# La contraseña es temporal: el dueño la cambia en Ajustes → Cuenta.
+# La contraseña es temporal: la cuenta nace con user_metadata.clave_temporal y,
+# al entrar por primera vez, la app guía al dueño paso a paso para cambiarla.
 name: Crear dueño (producción)
 
 on:
@@ -35,7 +36,7 @@ jobs:
             echo "::error::Faltan VITE_SUPABASE_URL o el secreto SUPABASE_SERVICE_ROLE_KEY."; exit 1; }
           [ ${#PASSWORD} -ge 8 ] || { echo "::error::La contraseña debe tener al menos 8 caracteres."; exit 1; }
 
-          cuerpo=$(jq -n --arg e "$EMAIL" --arg p "$PASSWORD" '{email: $e, password: $p, email_confirm: true}')
+          cuerpo=$(jq -n --arg e "$EMAIL" --arg p "$PASSWORD" '{email: $e, password: $p, email_confirm: true, user_metadata: {clave_temporal: true}}')
           respuesta=$(curl -sS -X POST "$URL/auth/v1/admin/users" \
             -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" \
             -H "Content-Type: application/json" -d "$cuerpo")

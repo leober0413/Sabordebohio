@@ -6,12 +6,20 @@ import { FieldError } from '@/components/FieldError'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CLAVE_TEMPORAL } from '@/features/auth/clave'
 import { cambioPasswordSchema, type CambioPasswordValues } from '@/features/auth/schemas'
 import { mensajeError } from '@/lib/errores'
 import { supabase } from '@/lib/supabase'
+import { cn } from '@/lib/utils'
+
+interface CambiarPasswordProps {
+  /** En la guía del primer inicio: una columna, botón principal y sin toast. */
+  enGuia?: boolean
+  onListo?: () => void
+}
 
 /** Para cambiar la contraseña temporal con la que se crea cada dueño. */
-export function CambiarPassword() {
+export function CambiarPassword({ enGuia = false, onListo }: CambiarPasswordProps) {
   const {
     register,
     handleSubmit,
@@ -20,7 +28,10 @@ export function CambiarPassword() {
   } = useForm<CambioPasswordValues>({ resolver: zodResolver(cambioPasswordSchema) })
 
   const onSubmit = async ({ password }: CambioPasswordValues) => {
-    const { error } = await supabase.auth.updateUser({ password })
+    const { error } = await supabase.auth.updateUser({
+      password,
+      data: { [CLAVE_TEMPORAL]: false },
+    })
     if (error) {
       toast.error(
         error.code === 'same_password'
@@ -29,13 +40,14 @@ export function CambiarPassword() {
       )
       return
     }
+    if (onListo) return onListo()
     reset({ password: '', confirmar: '' })
     toast.success('Contraseña cambiada')
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className={cn('grid gap-3', !enGuia && 'sm:grid-cols-2')}>
         <div className="flex flex-col gap-2">
           <Label htmlFor="password-nueva">Contraseña nueva</Label>
           <Input
@@ -61,8 +73,20 @@ export function CambiarPassword() {
           <FieldError id="password-confirmar-error" message={errors.confirmar?.message} />
         </div>
       </div>
-      <Button type="submit" variant="secondary" className="self-start" disabled={isSubmitting}>
-        {isSubmitting ? 'Cambiando…' : 'Cambiar contraseña'}
+      <Button
+        type="submit"
+        size={enGuia ? 'lg' : 'default'}
+        variant={enGuia ? 'default' : 'secondary'}
+        className={enGuia ? 'mt-2 w-full' : 'self-start'}
+        disabled={isSubmitting}
+      >
+        {enGuia
+          ? isSubmitting
+            ? 'Guardando…'
+            : 'Guardar contraseña'
+          : isSubmitting
+            ? 'Cambiando…'
+            : 'Cambiar contraseña'}
       </Button>
     </form>
   )

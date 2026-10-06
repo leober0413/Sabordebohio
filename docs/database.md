@@ -205,7 +205,7 @@ Supuesto A-01: decenas de pedidos por semana; diseño probado mentalmente hasta 
 
 ## Seed de desarrollo (`supabase/seed.sql`)
 
-- Dos dueños de prueba (`leo@bohio.test`, `maria@bohio.test`) y un usuario sin perfil (`intruso@bohio.test`) para probar RLS. Contraseña local: `bohio-local-123`.
+- Dos dueños de prueba (`leo@bohio.test`, `maria@bohio.test`), una dueña recién creada con contraseña temporal (`ana@bohio.test`, `user_metadata.clave_temporal = true`, para la guía del primer inicio) y un usuario sin perfil (`intruso@bohio.test`) para probar RLS. Contraseña local: `bohio-local-123`.
 - Sabores: Pollo, Res, Queso.
 - `config_precios`: docena RD$550, mínimo 6, redondeo 1, precio suelta de ejemplo.
 - Categorías: Ingredientes (sistema), Gas, Empaques, Transporte.
