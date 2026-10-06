@@ -61,7 +61,7 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 
 **Hecho cuando:** bajar un ingrediente del mínimo muestra la alerta y comprar la quita.
 
-## Fase 5 — Gastos y finanzas (M)
+## Fase 5 — Gastos y finanzas (M) · ✅ terminada (2026-10-06)
 
 - UI de gastos (gas, empaques…) y categorías.
 - RPC `resumen_financiero` + pruebas.

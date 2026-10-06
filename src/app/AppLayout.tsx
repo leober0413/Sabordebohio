@@ -1,5 +1,6 @@
 import {
   CalendarCheck,
+  ChartColumn,
   ClipboardList,
   Ellipsis,
   Factory,
@@ -7,6 +8,7 @@ import {
   House,
   Package,
   Plus,
+  Receipt,
   Settings,
   ShoppingCart,
   Users,
@@ -25,6 +27,8 @@ const LATERAL = [
   { to: '/fiado', label: 'Fiado', Icono: HandCoins },
   { to: '/clientes', label: 'Clientes', Icono: Users },
   { to: '/inventario', label: 'Inventario', Icono: Package },
+  { to: '/gastos', label: 'Gastos', Icono: Receipt },
+  { to: '/finanzas', label: 'Finanzas', Icono: ChartColumn },
   { to: '/ajustes', label: 'Ajustes', Icono: Settings },
 ]
 
@@ -32,6 +36,7 @@ const ACCIONES_RAPIDAS = [
   { to: '/pedidos/nuevo', label: 'Nuevo pedido', Icono: ClipboardList, principal: true },
   { to: '/tandas/nueva', label: 'Registrar tanda', Icono: Factory, principal: false },
   { to: '/compras/nueva', label: 'Registrar compra', Icono: ShoppingCart, principal: false },
+  { to: '/gastos/nuevo', label: 'Registrar gasto', Icono: Receipt, principal: false },
 ]
 
 export function AppLayout() {
@@ -153,7 +158,7 @@ export function AppLayout() {
               to="/mas"
               label="Más"
               Icono={Ellipsis}
-              activoTambien={['/ajustes', '/fiado', '/clientes']}
+              activoTambien={['/ajustes', '/fiado', '/clientes', '/gastos', '/finanzas']}
             />
           </ul>
         </nav>

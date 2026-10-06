@@ -691,7 +691,10 @@ isOneToOne: false
         to: "tandas"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"resumen_financiero":
+{ Args: { "p_desde": string,"p_hasta": string }; Returns: Json
+                           }
           }
           Enums: {
             "estado_pago": "pendiente"|"parcial"|"pagado","estado_pedido": "pendiente"|"listo"|"entregado"|"cancelado","metodo_pago": "efectivo"|"transferencia","tarifa_aplicada": "suelta"|"docena","tipo_entrega": "recoge"|"delivery","tipo_mov_ingrediente": "compra"|"ajuste"|"conteo","tipo_mov_producto": "tanda"|"entrega"|"reverso_entrega"|"hecho_al_momento"|"ajuste"
