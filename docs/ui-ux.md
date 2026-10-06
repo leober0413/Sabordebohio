@@ -50,6 +50,10 @@ El botón **[+]** central abre un menú rápido: *Nuevo pedido* (principal) · *
 
 ### Pantallas clave
 
+**Primer inicio** (solo cuentas con contraseña temporal)
+- Guía de 3 pasos a pantalla completa: bienvenida con el nombre → contraseña nueva (con consejos) → "¡Listo!" con el correo para entrar. "Ahora no" deja usar la app y la guía vuelve al abrirla otra vez.
+- La marca `clave_temporal` la pone `crear-dueno.yml` y se quita al cambiar la contraseña (también desde Ajustes). Solo guía; los permisos siguen en RLS.
+
 **Hoy** (inicio)
 - Franja de alertas: atrasados (rojo) y stock bajo (ámbar), cada una toca para ver detalle.
 - "A preparar hoy": Pollo 7 · Res 4 · Queso 3 (FR-032).
