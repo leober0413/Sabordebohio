@@ -150,7 +150,7 @@ function Tarjeta({
       <dt className="text-sm text-muted-foreground">{titulo}</dt>
       <dd
         className={cn(
-          'text-2xl font-bold tabular',
+          'text-2xl font-bold whitespace-nowrap tabular lg:text-xl xl:text-2xl',
           destacar === 'bien' && 'text-success',
           destacar === 'mal' && 'text-destructive',
         )}
