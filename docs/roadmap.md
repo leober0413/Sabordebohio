@@ -7,7 +7,7 @@
 
 Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L** (varias sesiones). Cada fase termina con un PR mergeado y CI en verde.
 
-## Fase 0 — Fundaciones (M)
+## Fase 0 — Fundaciones (M) · ✅ terminada (2026-10-06)
 
 **Objetivo:** repo listo para que cualquier sesión de Claude Code en la nube trabaje sin preguntar nada.
 
@@ -17,8 +17,8 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 - `.claude/settings.json` con hook SessionStart que ejecuta `scripts/session-start.sh` (arranca Supabase local y aplica migraciones).
 - ESLint + Prettier; Vitest; Playwright.
 - `ci.yml`. `deploy.yml` preparado (se activa en Fase 2).
-- Elegir hosting del frontend: Cloudflare Pages o Vercel (cerrar DEC-002).
-- **Validar DEC-005:** `supabase start` funciona en la sesión en la nube.
+- Elegir hosting del frontend: Cloudflare Pages o Vercel (cerrar DEC-002). → **Cloudflare Pages.**
+- **Validar DEC-005:** `supabase start` funciona en la sesión en la nube. → **Validado** (ver DEC-005).
 
 **Hecho cuando:** CI pasa en un PR vacío; `supabase start` funciona en la nube; la app muestra una pantalla vacía con el tema aplicado e instalable como PWA.
 

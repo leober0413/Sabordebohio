@@ -1,0 +1,3 @@
+-- Datos de desarrollo. Se aplican con `npx supabase db reset`.
+-- Solo para local: nunca se ejecutan en producción.
+-- La Fase 1 agrega aquí los dueños de prueba, sabores y la lista de precios.

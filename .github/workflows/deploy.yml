@@ -1,0 +1,55 @@
+# Despliegue a producción (DEC-001 regla 5, DEC-005 regla 6).
+# Preparado en la Fase 0; se activa en la Fase 2 descomentando el disparador
+# `push` y cargando los secretos y variables del repositorio:
+#   Secrets: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, CLOUDFLARE_API_TOKEN
+#   Variables: SUPABASE_PROJECT_REF, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY,
+#              CLOUDFLARE_ACCOUNT_ID
+# Las sesiones de Claude Code nunca tienen estas credenciales.
+name: Deploy
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Migraciones a producción
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          npx supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}"
+          npx supabase db push
+          # Fase 2: aplicar también la config de auth de config.toml
+          # (`supabase config push`) cuando site_url de producción esté
+          # parametrizado; hoy apunta a localhost.
+
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Publicar en Cloudflare Pages (DEC-002)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 pages deploy dist --project-name=sabor-de-bohio --branch=main

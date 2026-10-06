@@ -94,7 +94,7 @@ Cumple todos los requisitos relevantes con la menor cantidad de piezas, aprovech
 
 ### Decision
 
-Construir el frontend como una **single-page app** con React + TypeScript + Vite, instalable como PWA (`vite-plugin-pwa`). Habla directo con Supabase mediante `supabase-js`. Se publica como sitio estático en un hosting gratuito (Cloudflare Pages o Vercel).
+Construir el frontend como una **single-page app** con React + TypeScript + Vite, instalable como PWA (`vite-plugin-pwa`). Habla directo con Supabase mediante `supabase-js`. Se publica como sitio estático en **Cloudflare Pages** (plan gratuito), desplegado desde GitHub Actions (`deploy.yml`).
 
 Librerías propuestas: Tailwind CSS (estilos mobile-first), TanStack Query (caché y refresco de datos), React Router (navegación), React Hook Form + Zod (formularios rápidos y validados).
 
@@ -142,6 +142,15 @@ Es la opción con menos piezas que cumple todos los requisitos: archivos estáti
 ### Confidence
 
 **Media-alta.** Next.js también sería razonable; la diferencia es de simplicidad, no de capacidad.
+
+### Hosting (cerrado en la Fase 0, 2026-10-06)
+
+| Opción | Estado | Razón |
+|---|---|---|
+| **Cloudflare Pages** | SELECTED | El plan gratuito permite uso comercial, sin límite de ancho de banda, y sirve la SPA con fallback a `index.html` sin configuración. Se publica con `wrangler pages deploy` desde GitHub Actions, así que el token vive solo en Actions Secrets. |
+| Vercel | REJECTED | El plan Hobby es solo para uso personal y no comercial; Sabor de Bohío es un negocio, así que obligaría al plan Pro (NFR-C-001). |
+
+Todavía no se ha creado ninguna cuenta: si el dueño prefiere otro hosting, se cambia antes de la Fase 2 tocando solo el último paso de `deploy.yml`.
 
 ### Trigger for Reconsideration
 
@@ -219,7 +228,7 @@ Si el prototipo muestra que el flujo de pedido no baja de 30 s.
 
 ## DEC-005 — Entorno de desarrollo: Claude Code en la nube (iniciado desde la app de escritorio), con Supabase local en Docker dentro de la sesión
 
-- **Status:** PROVISIONALLY SELECTED (se valida en el primer arranque)
+- **Status:** VALIDATED (2026-10-06 — `supabase start` funcionó en la primera sesión en la nube; ver "Validación")
 - **Date:** 2026-10-06
 - **Domain:** infrastructure / planning
 - **Related decisions:** DEC-001, DEC-002
@@ -236,16 +245,28 @@ El dueño quiere trabajar con Claude Code en la nube. DEC-001 exige desarrollo l
 
 - Las sesiones en la nube clonan el repo desde GitHub y abren PRs; se inician desde la web, el celular, la app de escritorio o `claude --cloud`.
 - Docker y `docker compose` vienen instalados en el entorno de la nube.
-- El acceso de red **Trusted** incluye npm, Docker Hub y `public.ecr.aws` (de donde la CLI de Supabase descarga sus imágenes), pero **no** los dominios de Supabase.
+- El acceso de red **Trusted** incluye npm, Docker Hub y `public.ecr.aws` (de donde la CLI de Supabase descarga sus imágenes), pero **no** los dominios de Supabase. *(Corregido en la validación: en la práctica `public.ecr.aws` y ghcr.io fallan; se usa Docker Hub.)*
 - La caché del entorno guarda paquetes e imágenes descargadas, pero no contenedores en ejecución: Supabase local se arranca en cada sesión.
 - Las variables de entorno del entorno las puede leer cualquiera que lo use; no son para secretos.
+
+### Validación (Fase 0, 2026-10-06)
+
+`npx supabase start` funcionó en la sesión en la nube: Postgres 17, GoTrue, PostgREST y Kong arriba, `supabase db reset` y `supabase test db` (pgTAP) en verde, registro público desactivado (`disable_signup: true`). Hallazgos que cambian lo que suponía la evidencia:
+
+- **El daemon de Docker no arranca solo.** Hay que lanzar `dockerd`; lo hace `scripts/session-start.sh`.
+- **ghcr.io y `public.ecr.aws` están bloqueados** por la red del entorno (descarga de capas → 403 Forbidden). Docker Hub sí funciona, así que el script fija `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`.
+- **Docker Hub limita las descargas anónimas** (429 Too Many Requests de vez en cuando). El CLI reintenta solo y el script reintenta `supabase start` hasta 3 veces. Con las imágenes ya en caché no se descarga nada.
+- **Tiempos:** primer arranque con descarga de imágenes ≈ 1 min 25 s; arranque en frío con `npm ci` y solo una imagen por bajar ≈ 1 min.
+- Se desactivaron en `config.toml` los servicios que el MVP no usa (Studio, Realtime, Storage, Edge Runtime, Analytics, SMTP local) para arrancar más rápido y bajar menos imágenes. Se reactivan si una fase los necesita.
+- **`ui.shadcn.com` está bloqueado**, así que `npx shadcn add` no funciona en la sesión: los componentes se escriben a mano a partir del código de shadcn/ui.
+- **Playwright:** el Chromium preinstalado no coincide con la versión de `@playwright/test`; en la nube se usa con `PLAYWRIGHT_CHROMIUM_EXECUTABLE` (lo exporta el script). CI instala su propio navegador.
 
 ### Reglas de trabajo derivadas
 
 1. **Repo en GitHub** con la app de Claude para GitHub instalada (necesaria para clonar y para auto-fix de PRs).
 2. **Red del entorno:** Trusted es suficiente para desarrollar. No se agregan dominios de Supabase: la sesión no habla con producción.
 3. **Setup script del entorno:** `npm ci` y `npx supabase start` una vez para dejar las imágenes en caché (luego `npx supabase stop`).
-4. **Al iniciar cada sesión** (SessionStart hook en `.claude/settings.json` o pedido a Claude): `npx supabase start`, luego `npx supabase db reset` para aplicar migraciones y seed.
+4. **Al iniciar cada sesión** el hook SessionStart de `.claude/settings.json` ejecuta `scripts/session-start.sh`: `npm ci` si hace falta, arranca Docker, `npx supabase start`, `npx supabase db reset` y genera `.env.local` con las llaves locales.
 5. **Supabase CLI como dependencia de desarrollo** del proyecto (`npm i -D supabase`), invocada con `npx supabase`.
 6. **Flujo:** sesión en la nube → rama → PR → revisión → merge a `main` → GitHub Actions ejecuta `supabase db push` y despliega el frontend.
 7. **Secretos de producción** (`SUPABASE_ACCESS_TOKEN`, contraseña de la base, `project-ref`) solo en GitHub Actions Secrets. Nunca en el entorno de la nube ni en el repo.
@@ -270,7 +291,7 @@ El dueño quiere trabajar con Claude Code en la nube. DEC-001 exige desarrollo l
 
 ### Confidence
 
-**Media.** Docker y el acceso a las imágenes están documentados; falta comprobar que `supabase start` funciona en la VM.
+**Alta.** Comprobado en la sesión de la Fase 0. El punto débil es el límite de descargas anónimas de Docker Hub, que solo afecta cuando las imágenes no están en caché.
 
 ### Trigger for Reconsideration
 
