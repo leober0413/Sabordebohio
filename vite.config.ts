@@ -51,5 +51,11 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
+    // Las pruebas unitarias no hablan con Supabase: valores ficticios para que
+    // no dependan de .env.local (en CI se genera después de Vitest).
+    env: {
+      VITE_SUPABASE_URL: 'http://supabase.test',
+      VITE_SUPABASE_ANON_KEY: 'clave-de-prueba',
+    },
   },
 })
