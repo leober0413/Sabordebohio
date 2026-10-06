@@ -299,28 +299,28 @@ Si `supabase start` no funciona de forma confiable en las sesiones en la nube.
 
 ---
 
-## DEC-006 — Revertir una entrega deja en 0 el efecto del pedido en el stock
+## DEC-006 — Revertir una entrega "hecho al momento" devuelve las catibías al stock
 
-- **Status:** PROVISIONALLY SELECTED (se confirma con el uso)
+- **Status:** ADOPTED (2026-10-06 — decidido por el dueño)
 - **Date:** 2026-10-06
 - **Domain:** requirements / database
 - **Related decisions:** BR-006, FR-025, FR-026
 
 ### Decision
 
-Cuando un pedido sale de *entregado* (revertir a listo/pendiente, cancelar o "Deshacer"), `cambiar_estado` inserta movimientos `reverso_entrega` que dejan en **0 el efecto neto** de ese pedido sobre el stock de cada sabor.
+Cuando un pedido sale de *entregado* (revertir a listo/pendiente, cancelar o "Deshacer"), `cambiar_estado` inserta `reverso_entrega` por lo que descontaron las entregas del pedido. Los movimientos `hecho_al_momento` **no se revierten**: esa producción queda registrada y las catibías vuelven al stock.
 
 ### Context
 
-BR-006 dice que "su descuento de stock se reintegra". Con una entrega normal (−N) es lo mismo: se reintegran N. La duda está en una entrega **"hecho al momento"** (FR-026), que registra +N de producción y −N de entrega (neto 0): ¿al revertir se suman N (la producción queda) o nada (se deshace todo)?
+BR-006 dice que "su descuento de stock se reintegra". Con una entrega normal (−N) se reintegran N. Con "hecho al momento" (FR-026) se registra +N de producción y −N de entrega; al revertir se reintegran los N de la entrega y la producción se mantiene, así que el stock sube N.
 
 ### Alternatives
 
 | Alternativa | Estado | Razón |
 |---|---|---|
-| Neto del pedido a 0 | SELECTED | "Deshacer" y revertir suelen corregir un error: lo correcto es que el stock quede como si no hubiera pasado. Si luego se entrega normal, descuenta N, que es lo real si no hubo producción aparte. |
-| Reintegrar solo la entrega (+N) | REJECTED | Tras deshacer un "hecho al momento" por error, el stock subiría N catibías que no existen. |
+| Reintegrar solo la entrega (+N) | ADOPTED | Decisión del dueño: si el pedido no se entregó, esas catibías existen y siguen disponibles. |
+| Dejar en 0 el efecto neto del pedido | SUPERSEDED | Fue la propuesta inicial (migración `20261006052219`); la reemplaza `20261006112617_revertir_entrega_reintegra`. |
 
-### Trigger for Reconsideration
+### Consequences
 
-Si los dueños revierten entregas "hechas al momento" porque el cliente **no se llevó** las catibías (y siguen existiendo): entonces deberían quedar en stock. Se resolvería con un ajuste manual (Fase 4) o cambiando esta regla.
+Si se marca "hecho al momento" por error y se deshace, el stock queda con N de más; se corrige con un ajuste manual (FR-052, Fase 4).
