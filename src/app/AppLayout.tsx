@@ -3,11 +3,13 @@ import {
   ClipboardList,
   Ellipsis,
   Factory,
+  HandCoins,
   House,
   Package,
   Plus,
   Settings,
   ShoppingCart,
+  Users,
   X,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -20,6 +22,8 @@ import { cn } from '@/lib/utils'
 const LATERAL = [
   { to: '/', label: 'Hoy', Icono: House, end: true },
   { to: '/pedidos', label: 'Pedidos', Icono: CalendarCheck },
+  { to: '/fiado', label: 'Fiado', Icono: HandCoins },
+  { to: '/clientes', label: 'Clientes', Icono: Users },
   { to: '/inventario', label: 'Inventario', Icono: Package },
   { to: '/ajustes', label: 'Ajustes', Icono: Settings },
 ]
@@ -145,7 +149,12 @@ export function AppLayout() {
               </button>
             </li>
             <ItemInferior to="/inventario" label="Inventario" Icono={Package} contador={alertas} />
-            <ItemInferior to="/mas" label="Más" Icono={Ellipsis} activoTambien={['/ajustes']} />
+            <ItemInferior
+              to="/mas"
+              label="Más"
+              Icono={Ellipsis}
+              activoTambien={['/ajustes', '/fiado', '/clientes']}
+            />
           </ul>
         </nav>
       )}

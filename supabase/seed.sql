@@ -85,6 +85,25 @@ select public.cambiar_estado(
 select public.crear_pedido(pg_temp.cliente('María Pérez'), pg_temp.lineas('Pollo', '12', 'Res', '12'), public.hoy() + 1, '16:00');
 
 -- ---------------------------------------------------------------------------
+-- Pagos y fiado de ejemplo (Fase 3).
+-- ---------------------------------------------------------------------------
+insert into public.clientes (nombre, telefono) values ('Pedro Gómez', '849-555-0104');
+
+-- Pedro: dos pedidos entregados sin pagar → fiado (E2E 2).
+select public.cambiar_estado(
+  (public.crear_pedido(pg_temp.cliente('Pedro Gómez'), pg_temp.lineas('Pollo', '4'), public.hoy() - 6)).id,
+  'entregado');
+select public.cambiar_estado(
+  (public.crear_pedido(pg_temp.cliente('Pedro Gómez'), pg_temp.lineas('Res', '6'), public.hoy() - 2)).id,
+  'entregado');
+
+-- Pago parcial del pedido de hoy de María.
+select public.registrar_pago(
+  (select id from public.pedidos
+   where cliente_id = pg_temp.cliente('María Pérez') and fecha_entrega = public.hoy()),
+  100, 'transferencia');
+
+-- ---------------------------------------------------------------------------
 -- Ingredientes y compras de ejemplo (Fase 4). Queso queda cerca del mínimo
 -- para la E2E 3.
 -- ---------------------------------------------------------------------------

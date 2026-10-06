@@ -23,7 +23,38 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "categorias_gasto": {
+            "abonos": {
+                  Row: {
+                    "anulado_en": string | null,"cliente_id": string,"creado_en": string,"creado_por": string,"fecha": string,"id": string,"metodo": Database["public"]['Enums']["metodo_pago"],"monto": number
+                  }
+                  Insert: {
+                    "anulado_en"?: string | null,"cliente_id": string,"creado_en"?: string,"creado_por"?: string,"fecha": string,"id"?: string,"metodo": Database["public"]['Enums']["metodo_pago"],"monto": number
+                  }
+                  Update: {
+                    "anulado_en"?: string | null,"cliente_id"?: string,"creado_en"?: string,"creado_por"?: string,"fecha"?: string,"id"?: string,"metodo"?: Database["public"]['Enums']["metodo_pago"],"monto"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "abonos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "abonos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "v_saldos_clientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "abonos_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"categorias_gasto": {
                   Row: {
                     "activo": boolean,"creado_en": string,"es_sistema": boolean,"id": string,"nombre": string
                   }
@@ -229,6 +260,43 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"pagos": {
+                  Row: {
+                    "abono_id": string | null,"anulado_en": string | null,"creado_en": string,"creado_por": string,"fecha": string,"id": string,"metodo": Database["public"]['Enums']["metodo_pago"],"monto": number,"pedido_id": string
+                  }
+                  Insert: {
+                    "abono_id"?: string | null,"anulado_en"?: string | null,"creado_en"?: string,"creado_por"?: string,"fecha": string,"id"?: string,"metodo": Database["public"]['Enums']["metodo_pago"],"monto": number,"pedido_id": string
+                  }
+                  Update: {
+                    "abono_id"?: string | null,"anulado_en"?: string | null,"creado_en"?: string,"creado_por"?: string,"fecha"?: string,"id"?: string,"metodo"?: Database["public"]['Enums']["metodo_pago"],"monto"?: number,"pedido_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pagos_abono_id_fkey"
+      columns: ["abono_id"]
+isOneToOne: false
+      referencedRelation: "abonos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pagos_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pagos_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "pedidos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pagos_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "v_pedidos"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"pedido_lineas": {
                   Row: {
                     "cantidad": number,"creado_en": string,"id": string,"pedido_id": string,"producto_id": string
@@ -282,6 +350,12 @@ isOneToOne: false
       columns: ["cliente_id"]
 isOneToOne: false
       referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pedidos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "v_saldos_clientes"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "pedidos_creado_por_fkey"
@@ -348,7 +422,7 @@ isOneToOne: false
                   ]
                 },"v_pedidos": {
                   Row: {
-                    "actualizado_en": string | null,"atrasado": boolean | null,"cliente_id": string | null,"cliente_nombre": string | null,"cliente_telefono": string | null,"costo_envio": number | null,"creado_en": string | null,"creado_por": string | null,"entregado_en": string | null,"estado": Database["public"]['Enums']["estado_pedido"] | null,"fecha_entrega": string | null,"hora_entrega": string | null,"id": string | null,"lineas": Json | null,"notas": string | null,"precio_docena_aplicado": number | null,"precio_suelta_aplicado": number | null,"redondeo_aplicado": number | null,"subtotal": number | null,"tarifa": Database["public"]['Enums']["tarifa_aplicada"] | null,"tipo_entrega": Database["public"]['Enums']["tipo_entrega"] | null,"total": number | null,"unidades": number | null,"version": number | null
+                    "actualizado_en": string | null,"atrasado": boolean | null,"cliente_id": string | null,"cliente_nombre": string | null,"cliente_telefono": string | null,"costo_envio": number | null,"creado_en": string | null,"creado_por": string | null,"entregado_en": string | null,"estado": Database["public"]['Enums']["estado_pedido"] | null,"estado_pago": Database["public"]['Enums']["estado_pago"] | null,"fecha_entrega": string | null,"hora_entrega": string | null,"id": string | null,"lineas": Json | null,"notas": string | null,"pagado": number | null,"precio_docena_aplicado": number | null,"precio_suelta_aplicado": number | null,"redondeo_aplicado": number | null,"saldo": number | null,"subtotal": number | null,"tarifa": Database["public"]['Enums']["tarifa_aplicada"] | null,"tipo_entrega": Database["public"]['Enums']["tipo_entrega"] | null,"total": number | null,"unidades": number | null,"version": number | null
                   }
                   Relationships: [
                     {
@@ -358,12 +432,25 @@ isOneToOne: false
       referencedRelation: "clientes"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "pedidos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "v_saldos_clientes"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "pedidos_creado_por_fkey"
       columns: ["creado_por"]
 isOneToOne: false
       referencedRelation: "perfiles"
       referencedColumns: ["id"]
     }
+                  ]
+                },"v_saldos_clientes": {
+                  Row: {
+                    "activo": boolean | null,"fiado_desde": string | null,"id": string | null,"nombre": string | null,"pedidos_fiados": number | null,"saldo_fiado": number | null,"saldo_total": number | null,"telefono": string | null
+                  }
+                  Relationships: [
+                    
                   ]
                 },"v_stock_ingredientes": {
                   Row: {
@@ -429,13 +516,48 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"anular_abono":
+{ Args: { "p_abono_id": string }; Returns: {
+              "anulado_en": string | null,
+"cliente_id": string,
+"creado_en": string,
+"creado_por": string,
+"fecha": string,
+"id": string,
+"metodo": Database["public"]['Enums']["metodo_pago"],
+"monto": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "abonos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"anular_pago":
+{ Args: { "p_pago_id": string }; Returns: {
+              "abono_id": string | null,
+"anulado_en": string | null,
+"creado_en": string,
+"creado_por": string,
+"fecha": string,
+"id": string,
+"metodo": Database["public"]['Enums']["metodo_pago"],
+"monto": number,
+"pedido_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "pagos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "calcular_precio":
 { Args: { "unidades": number }; Returns: {
               "precio_docena": number,"precio_suelta": number,"redondeo": number,"subtotal": number,"tarifa": Database["public"]['Enums']["tarifa_aplicada"]
             }[]
                            },
 "cambiar_estado":
-{ Args: { "p_estado": Database["public"]['Enums']["estado_pedido"],"p_hecho_al_momento"?: boolean,"p_id": string }; Returns: {
+{ Args: { "p_estado": Database["public"]['Enums']["estado_pedido"],"p_hecho_al_momento"?: boolean,"p_id": string,"p_pago"?: Json }; Returns: {
               "actualizado_en": string,
 "cliente_id": string,
 "costo_envio": number,
@@ -464,7 +586,7 @@ isOneToOne: false
         isSetofReturn: false
       } },
 "crear_pedido":
-{ Args: { "p_cliente_id": string,"p_costo_envio"?: number,"p_fecha_entrega"?: string,"p_hora_entrega"?: string,"p_lineas": Json,"p_notas"?: string,"p_tipo_entrega"?: Database["public"]['Enums']["tipo_entrega"] }; Returns: {
+{ Args: { "p_cliente_id": string,"p_costo_envio"?: number,"p_fecha_entrega"?: string,"p_hora_entrega"?: string,"p_lineas": Json,"p_notas"?: string,"p_pago"?: Json,"p_tipo_entrega"?: Database["public"]['Enums']["tipo_entrega"] }; Returns: {
               "actualizado_en": string,
 "cliente_id": string,
 "costo_envio": number,
@@ -501,6 +623,23 @@ isOneToOne: false
 "hoy":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"registrar_abono":
+{ Args: { "p_cliente_id": string,"p_fecha"?: string,"p_metodo": Database["public"]['Enums']["metodo_pago"],"p_monto": number,"p_pedido_id"?: string }; Returns: {
+              "anulado_en": string | null,
+"cliente_id": string,
+"creado_en": string,
+"creado_por": string,
+"fecha": string,
+"id": string,
+"metodo": Database["public"]['Enums']["metodo_pago"],
+"monto": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "abonos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "registrar_compra":
 { Args: { "p_cantidad": number,"p_costo_total": number,"p_fecha"?: string,"p_ingrediente_id": string }; Returns: {
               "anulado_en": string | null,
@@ -521,6 +660,24 @@ isOneToOne: false
 "registrar_conteo":
 { Args: { "p_cantidad_contada": number,"p_ingrediente_id": string }; Returns: number
                            },
+"registrar_pago":
+{ Args: { "p_fecha"?: string,"p_metodo": Database["public"]['Enums']["metodo_pago"],"p_monto": number,"p_pedido_id": string }; Returns: {
+              "abono_id": string | null,
+"anulado_en": string | null,
+"creado_en": string,
+"creado_por": string,
+"fecha": string,
+"id": string,
+"metodo": Database["public"]['Enums']["metodo_pago"],
+"monto": number,
+"pedido_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "pagos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "registrar_tanda":
 { Args: { "p_fecha"?: string,"p_lineas": Json,"p_notas"?: string }; Returns: {
               "creado_en": string,
@@ -537,7 +694,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "estado_pedido": "pendiente"|"listo"|"entregado"|"cancelado","metodo_pago": "efectivo"|"transferencia","tarifa_aplicada": "suelta"|"docena","tipo_entrega": "recoge"|"delivery","tipo_mov_ingrediente": "compra"|"ajuste"|"conteo","tipo_mov_producto": "tanda"|"entrega"|"reverso_entrega"|"hecho_al_momento"|"ajuste"
+            "estado_pago": "pendiente"|"parcial"|"pagado","estado_pedido": "pendiente"|"listo"|"entregado"|"cancelado","metodo_pago": "efectivo"|"transferencia","tarifa_aplicada": "suelta"|"docena","tipo_entrega": "recoge"|"delivery","tipo_mov_ingrediente": "compra"|"ajuste"|"conteo","tipo_mov_producto": "tanda"|"entrega"|"reverso_entrega"|"hecho_al_momento"|"ajuste"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -657,7 +814,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "estado_pedido": ["pendiente", "listo", "entregado", "cancelado"],"metodo_pago": ["efectivo", "transferencia"],"tarifa_aplicada": ["suelta", "docena"],"tipo_entrega": ["recoge", "delivery"],"tipo_mov_ingrediente": ["compra", "ajuste", "conteo"],"tipo_mov_producto": ["tanda", "entrega", "reverso_entrega", "hecho_al_momento", "ajuste"]
+            "estado_pago": ["pendiente", "parcial", "pagado"],"estado_pedido": ["pendiente", "listo", "entregado", "cancelado"],"metodo_pago": ["efectivo", "transferencia"],"tarifa_aplicada": ["suelta", "docena"],"tipo_entrega": ["recoge", "delivery"],"tipo_mov_ingrediente": ["compra", "ajuste", "conteo"],"tipo_mov_producto": ["tanda", "entrega", "reverso_entrega", "hecho_al_momento", "ajuste"]
           }
         }
 } as const

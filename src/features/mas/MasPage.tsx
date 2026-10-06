@@ -1,10 +1,12 @@
-import { ChevronRight, Settings } from 'lucide-react'
+import { ChevronRight, HandCoins, Settings, Users } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { PageHeader } from '@/components/PageHeader'
 
-// Clientes / Fiado, Gastos y Finanzas se agregan en las Fases 3 a 5 (docs/ui-ux.md §4).
+// Gastos y Finanzas se agregan en las Fases 4 y 5 (docs/ui-ux.md §4).
 const ENLACES = [
+  { to: '/fiado', label: 'Fiado', detalle: 'Quién nos debe y abonos', Icono: HandCoins },
+  { to: '/clientes', label: 'Clientes', detalle: 'Fichas e historial', Icono: Users },
   { to: '/ajustes', label: 'Ajustes', detalle: 'Precios, sabores y cuenta', Icono: Settings },
 ]
 

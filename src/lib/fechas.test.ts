@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { diasEntre, formatFechaRelativa, formatHora, hoySD, sumarDias } from '@/lib/fechas'
+import {
+  diasEntre,
+  formatFechaRelativa,
+  formatHora,
+  haceDias,
+  hoySD,
+  sumarDias,
+} from '@/lib/fechas'
 
 describe('fechas en America/Santo_Domingo', () => {
   it('hoy depende de Santo Domingo, no de UTC', () => {
@@ -31,5 +38,11 @@ describe('fechas en America/Santo_Domingo', () => {
 
   it('cuenta días entre fechas', () => {
     expect(diasEntre('2026-10-01', '2026-10-06')).toBe(5)
+  })
+
+  it('dice hace cuántos días (FR-042)', () => {
+    expect(haceDias('2026-10-06', '2026-10-06')).toBe('hoy')
+    expect(haceDias('2026-10-05', '2026-10-06')).toBe('hace 1 día')
+    expect(haceDias('2026-09-30', '2026-10-06')).toBe('hace 6 días')
   })
 })

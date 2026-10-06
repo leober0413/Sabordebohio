@@ -14,10 +14,18 @@ export const pedidoSchema = z
       .trim()
       .refine((v) => v === '' || MONTO.test(v), 'Escribe el costo en pesos, por ejemplo 100.'),
     notas: z.string().max(300, 'Máximo 300 caracteres.'),
+    // Pago al crear (FR-041). "pendiente" = por cobrar.
+    pagoModo: z.enum(['pendiente', 'completo', 'parcial']),
+    pagoMetodo: z.enum(['efectivo', 'transferencia']),
+    pagoMonto: z.string().trim(),
   })
   .refine((v) => totalUnidades(v.cantidades) > 0, {
     path: ['cantidades'],
     message: 'Agrega al menos una catibía.',
+  })
+  .refine((v) => v.pagoModo !== 'parcial' || (MONTO.test(v.pagoMonto) && Number(v.pagoMonto) > 0), {
+    path: ['pagoMonto'],
+    message: 'Escribe cuánto pagó, por ejemplo 200.',
   })
 
 export type PedidoFormValues = z.infer<typeof pedidoSchema>
