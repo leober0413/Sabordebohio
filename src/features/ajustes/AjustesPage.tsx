@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CambiarPassword } from '@/features/auth/CambiarPassword'
 import { cerrarSesion, usePerfil, useSession } from '@/features/auth/hooks'
 import { PreciosCard } from '@/features/ajustes/PreciosCard'
 import { SaboresCard } from '@/features/ajustes/SaboresCard'
@@ -21,15 +22,18 @@ export function AjustesPage() {
         <CardHeader>
           <CardTitle>Cuenta</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="font-medium">{perfil.data?.nombre}</p>
-            <p className="text-sm text-muted-foreground">{session?.user.email}</p>
+        <CardContent className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-medium">{perfil.data?.nombre}</p>
+              <p className="text-sm text-muted-foreground">{session?.user.email}</p>
+            </div>
+            <Button variant="outline" onClick={cerrarSesion}>
+              <LogOut aria-hidden />
+              Cerrar sesión
+            </Button>
           </div>
-          <Button variant="outline" onClick={cerrarSesion}>
-            <LogOut aria-hidden />
-            Cerrar sesión
-          </Button>
+          <CambiarPassword />
         </CardContent>
       </Card>
     </section>

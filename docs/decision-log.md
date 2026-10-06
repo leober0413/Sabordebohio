@@ -147,7 +147,7 @@ Es la opción con menos piezas que cumple todos los requisitos: archivos estáti
 
 | Opción | Estado | Razón |
 |---|---|---|
-| **Vercel** | SELECTED | Elegido por el dueño. Se publica con `vercel build` + `vercel deploy --prebuilt` desde GitHub Actions, después de `supabase db push`; `vercel.json` desactiva los despliegues automáticos desde Git y redirige las rutas de la SPA a `index.html`. El token vive solo en Actions Secrets. |
+| **Vercel** | SELECTED | Elegido por el dueño. Se publica con `vercel build` + `vercel deploy --prebuilt` desde GitHub Actions, después de `supabase db push`; `vercel.json` desactiva los despliegues automáticos desde Git y redirige las rutas de la SPA a `index.html`. El token vive solo en Actions Secrets. Pasos en `docs/despliegue.md`. |
 | Cloudflare Pages | REJECTED | Era la recomendación técnica (plan gratuito con uso comercial), pero el dueño prefiere Vercel. |
 
 **Riesgo conocido:** los términos del plan Hobby de Vercel lo limitan a uso personal y no comercial. Sabor de Bohío es un negocio, así que puede requerir el plan Pro (afecta NFR-C-001). Verificar las condiciones vigentes al crear la cuenta en la Fase 2. Cambiar de hosting solo toca el último paso de `deploy.yml` y `vercel.json`.
@@ -296,3 +296,31 @@ El dueño quiere trabajar con Claude Code en la nube. DEC-001 exige desarrollo l
 ### Trigger for Reconsideration
 
 Si `supabase start` no funciona de forma confiable en las sesiones en la nube.
+
+---
+
+## DEC-006 — Revertir una entrega deja en 0 el efecto del pedido en el stock
+
+- **Status:** PROVISIONALLY SELECTED (se confirma con el uso)
+- **Date:** 2026-10-06
+- **Domain:** requirements / database
+- **Related decisions:** BR-006, FR-025, FR-026
+
+### Decision
+
+Cuando un pedido sale de *entregado* (revertir a listo/pendiente, cancelar o "Deshacer"), `cambiar_estado` inserta movimientos `reverso_entrega` que dejan en **0 el efecto neto** de ese pedido sobre el stock de cada sabor.
+
+### Context
+
+BR-006 dice que "su descuento de stock se reintegra". Con una entrega normal (−N) es lo mismo: se reintegran N. La duda está en una entrega **"hecho al momento"** (FR-026), que registra +N de producción y −N de entrega (neto 0): ¿al revertir se suman N (la producción queda) o nada (se deshace todo)?
+
+### Alternatives
+
+| Alternativa | Estado | Razón |
+|---|---|---|
+| Neto del pedido a 0 | SELECTED | "Deshacer" y revertir suelen corregir un error: lo correcto es que el stock quede como si no hubiera pasado. Si luego se entrega normal, descuenta N, que es lo real si no hubo producción aparte. |
+| Reintegrar solo la entrega (+N) | REJECTED | Tras deshacer un "hecho al momento" por error, el stock subiría N catibías que no existen. |
+
+### Trigger for Reconsideration
+
+Si los dueños revierten entregas "hechas al momento" porque el cliente **no se llevó** las catibías (y siguen existiendo): entonces deberían quedar en stock. Se resolvería con un ajuste manual (Fase 4) o cambiando esta regla.

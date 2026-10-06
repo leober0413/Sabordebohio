@@ -1,0 +1,40 @@
+# Aplica la configuración de auth de supabase/config.toml a producción
+# (DEC-001 regla 6): registro público desactivado (FR-080) y URL del sitio.
+# Manual: se corre al crear el proyecto y cuando cambie la config de auth.
+# config.toml tiene valores de local; aquí se reemplazan por los de producción
+# solo dentro de este job (no se guarda en el repo).
+name: Config de auth (producción)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Ajustar config.toml para producción
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          test -n "$SITE_URL" || { echo "::error::Falta la variable SITE_URL (URL pública de la app)."; exit 1; }
+          sed -i -E "s|^site_url = .*|site_url = \"$SITE_URL\"|" supabase/config.toml
+          sed -i -E "s|^additional_redirect_urls = .*|additional_redirect_urls = [\"$SITE_URL\"]|" supabase/config.toml
+          grep -nE '^(site_url|additional_redirect_urls|enable_signup)' supabase/config.toml
+
+      - name: Diferencias y aplicar
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          npx supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}"
+          npx supabase config diff
+          npx supabase config push --yes

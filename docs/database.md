@@ -168,6 +168,8 @@ Para evitar dobles entregas o dobles abonos simultáneos, las funciones bloquean
 - Cada tabla revoca todo a `anon` y `authenticated` y concede solo lo necesario, **por columna** en las escrituras (p. ej. la app no puede escribir `categorias_gasto.es_sistema` ni `config_precios.actualizado_por`). `delete` no se concede en ninguna tabla (BR-011).
 - `config_precios` nace con docena RD$550, mínimo 6, redondeo 1 y precio suelta sin definir; un trigger guarda `actualizado_en` y `actualizado_por`.
 - La categoría "Ingredientes" se crea en la migración (`es_sistema = true`) y un trigger impide renombrarla o desactivarla.
+- Las funciones internas (p. ej. `privado.leer_lineas`) viven en el esquema `privado`, que PostgREST no expone y sobre el que nadie tiene permisos.
+- **Fase 2:** `pedidos`, `pedido_lineas`, `tandas` y `movimientos_producto` solo se leen; se escriben con `crear_pedido`, `actualizar_pedido`, `cambiar_estado` y `registrar_tanda`. `v_pedidos` todavía no trae columnas de pagos (llegan en la Fase 3). `public.hoy()` da la fecha en America/Santo_Domingo. Salir de *entregado* deja en 0 el efecto neto del pedido en el stock (DEC-006).
 - En `config.toml`, `[auth] enable_signup = false` bloquea el registro público. `[auth.email] enable_signup` debe quedar en `true`: en `false` desactiva todo el login por correo.
 
 - **Registro público desactivado** en `supabase/config.toml`; los dos dueños se crean a mano (seed local / invitación en producción).

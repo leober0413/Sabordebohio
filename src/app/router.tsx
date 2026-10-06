@@ -6,6 +6,13 @@ import { AjustesPage } from '@/features/ajustes/AjustesPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { RequireDueno } from '@/features/auth/RequireDueno'
 import { HoyPage } from '@/features/hoy/HoyPage'
+import { InventarioPage } from '@/features/inventario/InventarioPage'
+import { TandaPage } from '@/features/inventario/TandaPage'
+import { MasPage } from '@/features/mas/MasPage'
+import { EditarPedidoPage } from '@/features/pedidos/EditarPedidoPage'
+import { NuevoPedidoPage } from '@/features/pedidos/NuevoPedidoPage'
+import { PedidoDetallePage } from '@/features/pedidos/PedidoDetallePage'
+import { PedidosPage } from '@/features/pedidos/PedidosPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -17,6 +24,13 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <HoyPage /> },
+      { path: 'pedidos', element: <PedidosPage /> },
+      { path: 'pedidos/nuevo', element: <NuevoPedidoPage /> },
+      { path: 'pedidos/:id', element: <PedidoDetallePage /> },
+      { path: 'pedidos/:id/editar', element: <EditarPedidoPage /> },
+      { path: 'inventario', element: <InventarioPage /> },
+      { path: 'tandas/nueva', element: <TandaPage /> },
+      { path: 'mas', element: <MasPage /> },
       { path: 'ajustes', element: <AjustesPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

@@ -32,13 +32,13 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 
 **Hecho cuando:** un dueño entra, configura precios y sabores; un usuario no dueño no ve nada (prueba RLS).
 
-## Fase 2 — Pedidos y "Hoy" (L) · primer uso real
+## Fase 2 — Pedidos y "Hoy" (L) · primer uso real · ✅ código terminado (2026-10-06); falta el despliegue (pasos del dueño en `despliegue.md`)
 
 - Migraciones: `pedidos`, `pedido_lineas`, `tandas`, `movimientos_producto`, vistas `v_pedidos` y `v_stock_productos`.
 - RPC: `crear_pedido`, `actualizar_pedido`, `cambiar_estado` (incluye "Hecho al momento"), `registrar_tanda`.
 - Pantallas: **Hoy**, **Nuevo pedido**, lista de pedidos por día, detalle/edición, registrar tanda. Navegación inferior y botón +.
 - "Deshacer" en cambios de estado.
-- Activar `deploy.yml`; crear proyecto de producción y los dos usuarios reales.
+- Activar `deploy.yml`; crear proyecto de producción y los dos usuarios reales. → `deploy.yml` activo (se salta sin secretos), `config-auth.yml` y `crear-dueno.yml` listos; las cuentas las crea el dueño (`despliegue.md`).
 - E2E 1.
 
 **Hecho cuando:** los dueños registran pedidos reales desde sus celulares y el stock de catibías se mueve solo. **Empieza el uso en paralelo con la memoria.**

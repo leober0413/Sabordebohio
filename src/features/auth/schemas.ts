@@ -6,3 +6,15 @@ export const loginSchema = z.object({
 })
 
 export type LoginValues = z.infer<typeof loginSchema>
+
+export const cambioPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'Usa al menos 8 caracteres.'),
+    confirmar: z.string(),
+  })
+  .refine((v) => v.password === v.confirmar, {
+    path: ['confirmar'],
+    message: 'Las contraseñas no coinciden.',
+  })
+
+export type CambioPasswordValues = z.infer<typeof cambioPasswordSchema>
