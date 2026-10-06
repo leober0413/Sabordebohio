@@ -48,16 +48,11 @@ say "Aplicando migraciones y seed (supabase db reset)…"
 run npx supabase db reset || { say "ERROR: supabase db reset falló. Ver $LOG"; exit 1; }
 
 # 5. Variables para Vite (solo valores locales, nunca de producción).
-eval "$(npx supabase status -o env 2>/dev/null | grep -E '^(API_URL|ANON_KEY)=')"
-cat >.env.local <<ENV
-# Generado por scripts/session-start.sh — Supabase local.
-VITE_SUPABASE_URL=$API_URL
-VITE_SUPABASE_ANON_KEY=$ANON_KEY
-ENV
+scripts/write-env.sh
 
 # 6. Playwright: en la nube se usa el Chromium preinstalado.
 if [ -n "${CLAUDE_ENV_FILE:-}" ] && [ -x /opt/pw-browsers/chromium ]; then
   echo "export PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium" >>"$CLAUDE_ENV_FILE"
 fi
 
-say "Listo: Supabase local en $API_URL (log: $LOG)."
+say "Listo: Supabase local arriba; .env.local generado (log: $LOG)."

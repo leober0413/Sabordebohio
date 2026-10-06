@@ -162,6 +162,14 @@ Para evitar dobles entregas o dobles abonos simultáneos, las funciones bloquean
 
 ## Security (capa de datos)
 
+**Implementado en la Fase 1** (`supabase/migrations/2026100605*`):
+- `es_dueno()` es `security definer` para leer `perfiles` sin depender de su propia política (evita recursión). `exigir_dueno()` corta las RPC con "No tienes permiso para hacer esto." (código 42501).
+- Ninguna función nueva se puede ejecutar por defecto: la migración base revoca `execute` a `PUBLIC` (global), `anon` y `authenticated`. Cada RPC concede `execute` a `authenticated` de forma explícita.
+- Cada tabla revoca todo a `anon` y `authenticated` y concede solo lo necesario, **por columna** en las escrituras (p. ej. la app no puede escribir `categorias_gasto.es_sistema` ni `config_precios.actualizado_por`). `delete` no se concede en ninguna tabla (BR-011).
+- `config_precios` nace con docena RD$550, mínimo 6, redondeo 1 y precio suelta sin definir; un trigger guarda `actualizado_en` y `actualizado_por`.
+- La categoría "Ingredientes" se crea en la migración (`es_sistema = true`) y un trigger impide renombrarla o desactivarla.
+- En `config.toml`, `[auth] enable_signup = false` bloquea el registro público. `[auth.email] enable_signup` debe quedar en `true`: en `false` desactiva todo el login por correo.
+
 - **Registro público desactivado** en `supabase/config.toml`; los dos dueños se crean a mano (seed local / invitación en producción).
 - **RLS activado en todas las tablas.** Política única por tabla: permitido solo si `es_dueno()` (existe fila en `perfiles` para `auth.uid()`).
 - **Tablas protegidas** (`pedidos`, `pedido_lineas`, `pagos`, `abonos`, `tandas`, `movimientos_*`, `compras`): `select` permitido a dueños; `insert/update/delete` **revocados** al rol `authenticated`. Solo las RPC (`security definer`, `set search_path = ''`, que verifican `es_dueno()` al inicio) pueden escribir.
@@ -192,12 +200,12 @@ Supuesto A-01: decenas de pedidos por semana; diseño probado mentalmente hasta 
 
 ## Seed de desarrollo (`supabase/seed.sql`)
 
-- Dos dueños de prueba (correo/contraseña solo para local).
+- Dos dueños de prueba (`leo@bohio.test`, `maria@bohio.test`) y un usuario sin perfil (`intruso@bohio.test`) para probar RLS. Contraseña local: `bohio-local-123`.
 - Sabores: Pollo, Res, Queso.
 - `config_precios`: docena RD$550, mínimo 6, redondeo 1, precio suelta de ejemplo.
 - Categorías: Ingredientes (sistema), Gas, Empaques, Transporte.
-- Ingredientes: Harina, Pollo (carne), Res (carne), Queso, Aceite, con mínimos de ejemplo.
-- Algunos clientes y pedidos de ejemplo en distintos estados.
+- Algunos clientes de ejemplo.
+- Ingredientes (Fase 4) y pedidos de ejemplo (Fase 2) se agregan cuando existan sus tablas.
 
 ## Assumptions
 

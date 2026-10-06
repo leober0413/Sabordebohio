@@ -22,7 +22,7 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 
 **Hecho cuando:** CI pasa en un PR vacío; `supabase start` funciona en la nube; la app muestra una pantalla vacía con el tema aplicado e instalable como PWA.
 
-## Fase 1 — Esquema base, login y ajustes (M)
+## Fase 1 — Esquema base, login y ajustes (M) · ✅ terminada (2026-10-06)
 
 - Migraciones: tipos, `perfiles`, `es_dueno()`, `config_precios`, `productos`, `clientes`, `categorias_gasto`, RLS de todo lo anterior.
 - `calcular_precio` + pruebas pgTAP de la tabla de precios; `src/lib/precio.ts` + pruebas Vitest con los mismos casos.
