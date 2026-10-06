@@ -19,15 +19,23 @@ React + TypeScript + Vite (PWA), Tailwind, shadcn/ui, TanStack Query, React Rout
 ## Comandos
 
 ```bash
+scripts/session-start.sh     # lo corre el hook SessionStart: Docker + Supabase local + db reset + .env.local
 npm run dev                  # app en local
 npx supabase start           # Supabase local (Docker)
 npx supabase db reset        # aplica migraciones + seed desde cero
 npx supabase migration new <nombre>
 npx supabase gen types typescript --local > src/types/database.ts
 npx supabase test db         # pruebas pgTAP
-npm run lint && npm run typecheck && npm test
-npm run test:e2e
+npm run lint && npm run format:check && npm run typecheck && npm test
+npm run test:e2e             # Playwright (build + preview en el puerto 4173)
 ```
+
+## Entorno de la sesión en la nube (DEC-005)
+
+- El hook SessionStart (`.claude/settings.json`) ejecuta `scripts/session-start.sh`. Si Supabase no responde, vuelve a ejecutarlo; el log queda en `/tmp/sabor-session-start.log`.
+- La red bloquea ghcr.io, `public.ecr.aws` y `ui.shadcn.com`. Las imágenes de Supabase salen de Docker Hub (`SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`) y los componentes de shadcn/ui se escriben a mano en `src/components/ui/` siguiendo el código de shadcn (`npx shadcn add` no funciona).
+- Playwright usa el Chromium preinstalado vía `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium`. No ejecutes `playwright install`.
+- `.env.local` solo tiene llaves de Supabase local y no se sube a git.
 
 ## Reglas de Supabase (DEC-001, DEC-005), obligatorias
 

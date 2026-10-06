@@ -1,0 +1,10 @@
+dist
+dev-dist
+coverage
+playwright-report
+test-results
+package-lock.json
+supabase/.temp
+supabase/config.toml
+docs
+*.md

@@ -60,7 +60,7 @@ Contra Supabase local con seed:
 2. Cliente con dos pedidos fiados → abono → se aplica al más viejo primero.
 3. Registrar conteo de queso bajo el mínimo → aparece la alerta en "Hoy" → registrar compra → la alerta desaparece.
 
-Se ejecutan en GitHub Actions. En las sesiones de Claude Code en la nube se corren solo si el navegador de Playwright se puede instalar con la red del entorno; si no, CI es la referencia.
+Se ejecutan en GitHub Actions. En las sesiones de Claude Code en la nube se usa el Chromium preinstalado mediante `PLAYWRIGHT_CHROMIUM_EXECUTABLE` (lo exporta `scripts/session-start.sh`); CI sigue siendo la referencia.
 
 ### 5. Usabilidad — manual
 
@@ -71,7 +71,7 @@ Se ejecutan en GitHub Actions. En las sesiones de Claude Code en la nube se corr
 
 | Workflow | Cuándo | Pasos |
 |---|---|---|
-| `ci.yml` | Cada PR | install → lint → typecheck → Vitest → `supabase start` → `supabase test db` → build → Playwright |
+| `ci.yml` | Cada PR y push a `main` | install → lint → formato → typecheck → Vitest → `supabase start` → `supabase test db` → `supabase db lint` → build → Playwright |
 | `deploy.yml` | Merge a `main` | `supabase db push` → build → publicar frontend |
 | `backup.yml` | Diario | `supabase db dump` cifrado como artefacto (si el plan de Supabase no cubre copias) |
 

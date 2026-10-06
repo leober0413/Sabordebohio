@@ -1,0 +1,36 @@
+# Dependencias y builds
+node_modules
+dist
+dist-ssr
+dev-dist
+*.tsbuildinfo
+
+# Pruebas
+coverage
+playwright-report
+test-results
+blob-report
+
+# Entorno: nunca subir llaves ni .env reales
+.env
+.env.*
+!.env.example
+*.local
+
+# Supabase
+supabase/.branches
+supabase/.temp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor y SO
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
+
+# Ajustes locales de Claude Code
+.claude/settings.local.json
