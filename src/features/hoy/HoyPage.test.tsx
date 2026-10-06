@@ -13,7 +13,7 @@ vi.mock('@/features/pedidos/queries', () => ({
 }))
 vi.mock('@/features/inventario/queries', async (original) => ({
   ...(await original<typeof import('@/features/inventario/queries')>()),
-  useStockProductos: () => ({ data: estado.stock, isPending: false, isError: false }),
+  useAlertasStock: () => ({ data: estado.stock, isPending: false, isError: false }),
 }))
 
 function pedido(parcial: Partial<Pedido>): Pedido {
@@ -51,20 +51,30 @@ describe('HoyPage', () => {
         lineas: [{ producto_id: 'p', nombre: 'Pollo', cantidad: 4 }],
       }),
     ]
+    // FR-063: alertas de sabores e ingredientes.
     estado.stock = [
       {
+        tipo: 'producto',
         id: 'q',
         nombre: 'Queso',
-        activo: true,
+        unidad: 'uds',
         stock: 2,
         stock_minimo: 6,
-        bajo_minimo: true,
+        negativo: false,
+      },
+      {
+        tipo: 'ingrediente',
+        id: 'h',
+        nombre: 'Harina',
+        unidad: 'lb',
+        stock: 1.5,
+        stock_minimo: 10,
         negativo: false,
       },
     ]
     renderConProveedores(<HoyPage />)
     expect(screen.getByText('1 pedido atrasado')).toBeInTheDocument()
-    expect(screen.getByText('Stock bajo: Queso (2)')).toBeInTheDocument()
+    expect(screen.getByText('Stock bajo: Queso (2), Harina (1.5 lb)')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'A preparar hoy' })).toHaveTextContent('Pollo 4')
     expect(screen.getByRole('region', { name: 'Atrasados' })).toHaveTextContent('Ana')
   })

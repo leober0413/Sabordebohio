@@ -1,7 +1,7 @@
 # Project State — "Sabor de Bohío"
 
 **Última actualización:** 2026-10-06
-**Etapa:** BUILD — Fases 0 a 2 en producción; Fase 3 (pagos y fiado) y Fase 4 (inventario y alertas) en PR paralelos.
+**Etapa:** BUILD — Fases 0 a 4 terminadas; siguiente: **Fase 5** (gastos y finanzas).
 
 ## Readiness
 

@@ -80,6 +80,37 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"compras": {
+                  Row: {
+                    "anulado_en": string | null,"cantidad": number,"costo_total": number,"creado_en": string,"creado_por": string,"fecha": string,"id": string,"ingrediente_id": string
+                  }
+                  Insert: {
+                    "anulado_en"?: string | null,"cantidad": number,"costo_total": number,"creado_en"?: string,"creado_por"?: string,"fecha": string,"id"?: string,"ingrediente_id": string
+                  }
+                  Update: {
+                    "anulado_en"?: string | null,"cantidad"?: number,"costo_total"?: number,"creado_en"?: string,"creado_por"?: string,"fecha"?: string,"id"?: string,"ingrediente_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "compras_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "compras_ingrediente_id_fkey"
+      columns: ["ingrediente_id"]
+isOneToOne: false
+      referencedRelation: "ingredientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "compras_ingrediente_id_fkey"
+      columns: ["ingrediente_id"]
+isOneToOne: false
+      referencedRelation: "v_stock_ingredientes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"config_precios": {
                   Row: {
                     "actualizado_en": string,"actualizado_por": string | null,"id": number,"minimo_docena": number,"precio_docena": number,"precio_suelta": number | null,"redondeo": number
@@ -96,6 +127,87 @@ isOneToOne: false
       columns: ["actualizado_por"]
 isOneToOne: false
       referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"gastos": {
+                  Row: {
+                    "anulado_en": string | null,"categoria_id": string,"compra_id": string | null,"creado_en": string,"creado_por": string,"descripcion": string | null,"fecha": string,"id": string,"monto": number
+                  }
+                  Insert: {
+                    "anulado_en"?: string | null,"categoria_id": string,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"descripcion"?: string | null,"fecha": string,"id"?: string,"monto": number
+                  }
+                  Update: {
+                    "anulado_en"?: string | null,"categoria_id"?: string,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"descripcion"?: string | null,"fecha"?: string,"id"?: string,"monto"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "gastos_categoria_id_fkey"
+      columns: ["categoria_id"]
+isOneToOne: false
+      referencedRelation: "categorias_gasto"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "gastos_compra_id_fkey"
+      columns: ["compra_id"]
+isOneToOne: true
+      referencedRelation: "compras"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "gastos_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ingredientes": {
+                  Row: {
+                    "activo": boolean,"creado_en": string,"id": string,"nombre": string,"stock_minimo": number | null,"unidad": string
+                  }
+                  Insert: {
+                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre": string,"stock_minimo"?: number | null,"unidad": string
+                  }
+                  Update: {
+                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre"?: string,"stock_minimo"?: number | null,"unidad"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"movimientos_ingrediente": {
+                  Row: {
+                    "cantidad": number,"compra_id": string | null,"creado_en": string,"creado_por": string,"id": string,"ingrediente_id": string,"motivo": string | null,"tipo": Database["public"]['Enums']["tipo_mov_ingrediente"]
+                  }
+                  Insert: {
+                    "cantidad": number,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"id"?: string,"ingrediente_id": string,"motivo"?: string | null,"tipo": Database["public"]['Enums']["tipo_mov_ingrediente"]
+                  }
+                  Update: {
+                    "cantidad"?: number,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"id"?: string,"ingrediente_id"?: string,"motivo"?: string | null,"tipo"?: Database["public"]['Enums']["tipo_mov_ingrediente"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "movimientos_ingrediente_compra_id_fkey"
+      columns: ["compra_id"]
+isOneToOne: false
+      referencedRelation: "compras"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_ingrediente_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_ingrediente_ingrediente_id_fkey"
+      columns: ["ingrediente_id"]
+isOneToOne: false
+      referencedRelation: "ingredientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_ingrediente_ingrediente_id_fkey"
+      columns: ["ingrediente_id"]
+isOneToOne: false
+      referencedRelation: "v_stock_ingredientes"
       referencedColumns: ["id"]
     }
                   ]
@@ -301,7 +413,14 @@ isOneToOne: false
                 }
           }
           Views: {
-            "v_pedidos": {
+            "v_alertas_stock": {
+                  Row: {
+                    "id": string | null,"negativo": boolean | null,"nombre": string | null,"stock": number | null,"stock_minimo": number | null,"tipo": string | null,"unidad": string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"v_pedidos": {
                   Row: {
                     "actualizado_en": string | null,"atrasado": boolean | null,"cliente_id": string | null,"cliente_nombre": string | null,"cliente_telefono": string | null,"costo_envio": number | null,"creado_en": string | null,"creado_por": string | null,"entregado_en": string | null,"estado": Database["public"]['Enums']["estado_pedido"] | null,"estado_pago": Database["public"]['Enums']["estado_pago"] | null,"fecha_entrega": string | null,"hora_entrega": string | null,"id": string | null,"lineas": Json | null,"notas": string | null,"pagado": number | null,"precio_docena_aplicado": number | null,"precio_suelta_aplicado": number | null,"redondeo_aplicado": number | null,"saldo": number | null,"subtotal": number | null,"tarifa": Database["public"]['Enums']["tarifa_aplicada"] | null,"tipo_entrega": Database["public"]['Enums']["tipo_entrega"] | null,"total": number | null,"unidades": number | null,"version": number | null
                   }
@@ -329,6 +448,13 @@ isOneToOne: false
                 },"v_saldos_clientes": {
                   Row: {
                     "activo": boolean | null,"fiado_desde": string | null,"id": string | null,"nombre": string | null,"pedidos_fiados": number | null,"saldo_fiado": number | null,"saldo_total": number | null,"telefono": string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"v_stock_ingredientes": {
+                  Row: {
+                    "activo": boolean | null,"bajo_minimo": boolean | null,"id": string | null,"nombre": string | null,"stock": number | null,"stock_minimo": number | null,"unidad": string | null
                   }
                   Relationships: [
                     
@@ -369,6 +495,24 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "pedidos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"ajustar_stock_producto":
+{ Args: { "p_cantidad": number,"p_motivo": string,"p_producto_id": string }; Returns: {
+              "cantidad": number,
+"creado_en": string,
+"creado_por": string,
+"id": string,
+"motivo": string | null,
+"pedido_id": string | null,
+"producto_id": string,
+"tanda_id": string | null,
+"tipo": Database["public"]['Enums']["tipo_mov_producto"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "movimientos_producto"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -496,6 +640,26 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"registrar_compra":
+{ Args: { "p_cantidad": number,"p_costo_total": number,"p_fecha"?: string,"p_ingrediente_id": string }; Returns: {
+              "anulado_en": string | null,
+"cantidad": number,
+"costo_total": number,
+"creado_en": string,
+"creado_por": string,
+"fecha": string,
+"id": string,
+"ingrediente_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "compras"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"registrar_conteo":
+{ Args: { "p_cantidad_contada": number,"p_ingrediente_id": string }; Returns: number
+                           },
 "registrar_pago":
 { Args: { "p_fecha"?: string,"p_metodo": Database["public"]['Enums']["metodo_pago"],"p_monto": number,"p_pedido_id": string }; Returns: {
               "abono_id": string | null,

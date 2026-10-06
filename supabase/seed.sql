@@ -102,3 +102,26 @@ select public.registrar_pago(
   (select id from public.pedidos
    where cliente_id = pg_temp.cliente('María Pérez') and fecha_entrega = public.hoy()),
   100, 'transferencia');
+
+-- ---------------------------------------------------------------------------
+-- Ingredientes y compras de ejemplo (Fase 4). Queso queda cerca del mínimo
+-- para la E2E 3.
+-- ---------------------------------------------------------------------------
+insert into public.ingredientes (nombre, unidad, stock_minimo) values
+  ('Harina', 'lb', 10),
+  ('Pollo (carne)', 'lb', 5),
+  ('Res (carne)', 'lb', 5),
+  ('Queso', 'lb', 2),
+  ('Aceite', 'galón', 1),
+  ('Sal', 'lb', null);
+
+select public.registrar_compra((select id from public.ingredientes where nombre = 'Harina'), 25, 1100, public.hoy() - 3);
+select public.registrar_compra((select id from public.ingredientes where nombre = 'Pollo (carne)'), 10, 1500, public.hoy() - 2);
+select public.registrar_compra((select id from public.ingredientes where nombre = 'Res (carne)'), 8, 1600, public.hoy() - 2);
+select public.registrar_compra((select id from public.ingredientes where nombre = 'Queso'), 3, 450, public.hoy() - 1);
+select public.registrar_compra((select id from public.ingredientes where nombre = 'Aceite'), 2, 900, public.hoy() - 4);
+select public.registrar_conteo((select id from public.ingredientes where nombre = 'Harina'), 12);
+
+insert into public.gastos (categoria_id, monto, fecha, descripcion, creado_por)
+select id, 1200, public.hoy() - 1, 'Tanque de gas', '11111111-1111-4111-8111-111111111111'
+from public.categorias_gasto where nombre = 'Gas';

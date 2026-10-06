@@ -8,12 +8,14 @@ import {
   Package,
   Plus,
   Settings,
+  ShoppingCart,
   Users,
   X,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 
+import { useAlertasStock } from '@/features/inventario/queries'
 import { cn } from '@/lib/utils'
 
 // docs/ui-ux.md §4: celular con barra inferior, PC con menú lateral.
@@ -29,10 +31,13 @@ const LATERAL = [
 const ACCIONES_RAPIDAS = [
   { to: '/pedidos/nuevo', label: 'Nuevo pedido', Icono: ClipboardList, principal: true },
   { to: '/tandas/nueva', label: 'Registrar tanda', Icono: Factory, principal: false },
+  { to: '/compras/nueva', label: 'Registrar compra', Icono: ShoppingCart, principal: false },
 ]
 
 export function AppLayout() {
   const [menuAbierto, setMenuAbierto] = useState(false)
+  // FR-063: contador de alertas en el menú de Inventario.
+  const alertas = useAlertasStock().data?.length ?? 0
   const { pathname } = useLocation()
 
   // Al navegar se cierra el menú rápido. Se ajusta durante el render para no
@@ -82,6 +87,7 @@ export function AppLayout() {
             >
               <Icono className="size-5" aria-hidden />
               {label}
+              {to === '/inventario' && <Contador n={alertas} />}
             </NavLink>
           ))}
           <NavLink
@@ -142,7 +148,7 @@ export function AppLayout() {
                 )}
               </button>
             </li>
-            <ItemInferior to="/inventario" label="Inventario" Icono={Package} />
+            <ItemInferior to="/inventario" label="Inventario" Icono={Package} contador={alertas} />
             <ItemInferior
               to="/mas"
               label="Más"
@@ -189,18 +195,35 @@ export function AppLayout() {
   )
 }
 
+function Contador({ n, className }: { n: number; className?: string }) {
+  if (n === 0) return null
+  return (
+    <span
+      aria-label={n === 1 ? '1 alerta de stock' : `${n} alertas de stock`}
+      className={cn(
+        'ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-warning px-1.5 text-xs font-bold text-warning-foreground',
+        className,
+      )}
+    >
+      {n}
+    </span>
+  )
+}
+
 function ItemInferior({
   to,
   label,
   Icono,
   end,
   activoTambien = [],
+  contador = 0,
 }: {
   to: string
   label: string
   Icono: typeof House
   end?: boolean
   activoTambien?: string[]
+  contador?: number
 }) {
   const { pathname } = useLocation()
   return (
@@ -215,7 +238,10 @@ function ItemInferior({
           )
         }
       >
-        <Icono className="size-6" aria-hidden />
+        <span className="relative">
+          <Icono className="size-6" aria-hidden />
+          <Contador n={contador} className="absolute -top-1.5 -right-3 ml-0" />
+        </span>
         {label}
       </NavLink>
     </li>

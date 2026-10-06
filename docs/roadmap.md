@@ -52,7 +52,7 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 
 **Hecho cuando:** se puede responder "¿quién nos debe?" en menos de un minuto.
 
-## Fase 4 — Inventario y alertas (M)
+## Fase 4 — Inventario y alertas (M) · ✅ terminada (2026-10-06)
 
 - Migraciones: `ingredientes`, `compras`, `movimientos_ingrediente`, `gastos`, vistas de stock de ingredientes y `v_alertas_stock`.
 - RPC: `registrar_compra`, `registrar_conteo`, `ajustar_stock_producto`.
