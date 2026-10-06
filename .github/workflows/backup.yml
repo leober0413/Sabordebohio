@@ -1,0 +1,84 @@
+# Copia de seguridad diaria de producción (NFR-R-002, docs/database.md).
+# El plan gratuito de Supabase no incluye copias, así que se hace aquí:
+# esquema + datos (incluye las cuentas de auth) → tar.gz → cifrado con
+# AES-256 (contiene teléfonos de clientes) → artefacto privado 30 días.
+# Se salta sin fallar mientras falten secretos. Cómo restaurar: docs/despliegue.md.
+#   Secrets:   SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, BACKUP_PASSPHRASE
+#   Variables: SUPABASE_PROJECT_REF
+name: Copia de seguridad
+
+on:
+  schedule:
+    # 09:17 UTC = 5:17 a. m. en Santo Domingo.
+    - cron: '17 9 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup-production
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - name: Verificar configuración
+        id: verificar
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          faltan=""
+          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD BACKUP_PASSPHRASE SUPABASE_PROJECT_REF; do
+            [ -n "${!v}" ] || faltan="$faltan $v"
+          done
+          if [ -n "$faltan" ]; then
+            echo "::notice::Copia omitida: faltan$faltan. Ver docs/despliegue.md."
+            echo "listo=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "listo=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        if: steps.verificar.outputs.listo == 'true'
+
+      - uses: actions/setup-node@v5
+        if: steps.verificar.outputs.listo == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+        if: steps.verificar.outputs.listo == 'true'
+
+      - name: Volcar y cifrar
+        if: steps.verificar.outputs.listo == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          npx supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}"
+          dir="$RUNNER_TEMP/respaldo"
+          mkdir -p "$dir"
+          npx supabase db dump --linked -f "$dir/esquema.sql"
+          npx supabase db dump --linked --data-only -f "$dir/datos.sql"
+          nombre="sabor-de-bohio-$(TZ=America/Santo_Domingo date +%F)"
+          tar -czf "$RUNNER_TEMP/$nombre.tar.gz" -C "$dir" esquema.sql datos.sql
+          # Nada sin cifrar sale del runner.
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+            --symmetric --cipher-algo AES256 -o "$RUNNER_TEMP/$nombre.tar.gz.gpg" "$RUNNER_TEMP/$nombre.tar.gz"
+          rm -rf "$dir" "$RUNNER_TEMP/$nombre.tar.gz"
+          echo "NOMBRE=$nombre" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.verificar.outputs.listo == 'true'
+        with:
+          name: ${{ env.NOMBRE }}
+          path: ${{ runner.temp }}/${{ env.NOMBRE }}.tar.gz.gpg
+          retention-days: 30
+          if-no-files-found: error

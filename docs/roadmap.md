@@ -69,10 +69,10 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 
 **Hecho cuando:** se puede responder "¿cuánto ganamos esta semana?" en menos de un minuto.
 
-## Fase 6 — PC, copias y cierre del MVP (S–M)
+## Fase 6 — PC, copias y cierre del MVP (S–M) · ✅ código terminado (2026-10-06); falta la revisión tras 2 semanas de uso
 
 - Diseño de PC: menú lateral y tablas (NFR-U-005).
-- Copias de seguridad: verificar plan de Supabase; si hace falta, `backup.yml`.
+- Copias de seguridad: verificar plan de Supabase; si hace falta, `backup.yml`. → El plan gratuito no las incluye: `backup.yml` diario y cifrado.
 - Exportar CSV (FR-073, Could).
 - Revisión de los criterios de éxito tras 2 semanas de uso.
 

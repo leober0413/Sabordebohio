@@ -199,8 +199,8 @@ Supuesto A-01: decenas de pedidos por semana; diseño probado mentalmente hasta 
 
 ## Backup & Recovery
 
-- **NFR-R-002** exige copia diaria. **Por verificar al crear el proyecto:** qué copias incluye el plan de Supabase elegido.
-- Si el plan no garantiza copias descargables: un workflow de GitHub Actions diario ejecuta `supabase db dump` (datos y esquema) y guarda el archivo **cifrado** como artefacto privado con retención de 30 días. Contiene teléfonos de clientes, así que nunca se sube sin cifrar.
+- **NFR-R-002** exige copia diaria. **Verificado (Fase 6):** el plan gratuito de Supabase no incluye copias de seguridad (las diarias empiezan en Pro).
+- Por eso `.github/workflows/backup.yml` corre a diario: `supabase db dump` (esquema y datos, incluye `auth.users`) → `tar.gz` → cifrado AES-256 con `BACKUP_PASSPHRASE` → artefacto privado con retención de 30 días. Contiene teléfonos de clientes, así que nunca se sube sin cifrar. Restauración en `despliegue.md`.
 - El esquema completo es reproducible desde `supabase/migrations/` (DEC-001).
 
 ## Seed de desarrollo (`supabase/seed.sql`)
