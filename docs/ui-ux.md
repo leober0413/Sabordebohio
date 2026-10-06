@@ -44,11 +44,16 @@
 |---|---|
 | Hoy · Pedidos · **[+]** · Inventario · Más | Hoy · Pedidos · Clientes / Fiado · Inventario · Gastos · Finanzas · Ajustes |
 
-"Más" agrupa en el celular: Clientes / Fiado, Gastos, Finanzas, Ajustes (productos, precios, categorías, mínimos, cuenta).
+"Más" agrupa en el celular: Clientes / Fiado, Gastos, Finanzas, Actividad, Ajustes (productos, precios, categorías, mínimos, cuenta).
 
 El botón **[+]** central abre un menú rápido: *Nuevo pedido* (principal) · *Registrar tanda* · *Registrar compra* · *Registrar gasto*.
 
 ### Pantallas clave
+
+**Actividad** (Más → Actividad en el celular; menú lateral en PC) · FR-083
+- Lista por día (Hoy, Ayer, fecha), lo más reciente arriba. Cada entrada: icono del tipo, qué se hizo en una frase ("Editó el pedido de Ana"), detalle, cambios **antes → después** (el antes tachado) y "Leo · 3:45 p. m.".
+- Filtros de un toque: Todo · Pedidos · Dinero · Inventario · Catálogo (en la URL, `?ver=`). "Ver más" carga 40 más.
+- Tocar una entrada abre el pedido o el cliente cuando aplica. Revertir una entrega se dice así ("Revirtió la entrega"), no como "marcó listo".
 
 **Primer inicio** (solo cuentas con contraseña temporal)
 - Guía de 3 pasos a pantalla completa: bienvenida con el nombre → contraseña nueva (con consejos) → "¡Listo!" con el correo para entrar. "Ahora no" deja usar la app y la guía vuelve al abrirla otra vez.

@@ -1,4 +1,12 @@
-import { ChartColumn, ChevronRight, HandCoins, Receipt, Settings, Users } from 'lucide-react'
+import {
+  ChartColumn,
+  ChevronRight,
+  HandCoins,
+  History,
+  Receipt,
+  Settings,
+  Users,
+} from 'lucide-react'
 import { Link } from 'react-router'
 
 import { PageHeader } from '@/components/PageHeader'
@@ -14,6 +22,12 @@ const ENLACES = [
   { to: '/fiado', label: 'Fiado', detalle: 'Quién nos debe y abonos', Icono: HandCoins },
   { to: '/clientes', label: 'Clientes', detalle: 'Fichas e historial', Icono: Users },
   { to: '/gastos', label: 'Gastos', detalle: 'Gas, empaques y compras', Icono: Receipt },
+  {
+    to: '/actividad',
+    label: 'Actividad',
+    detalle: 'Quién hizo qué y cuándo',
+    Icono: History,
+  },
   { to: '/ajustes', label: 'Ajustes', detalle: 'Precios, sabores y cuenta', Icono: Settings },
 ]
 

@@ -97,6 +97,7 @@ create type tipo_mov_ingrediente as enum ('compra', 'ajuste', 'conteo');
 | `movimientos_ingrediente` | `ingrediente_id`, `cantidad numeric(12,3)` (con signo), `tipo`, `motivo null`, `compra_id null` | `cantidad <> 0`; `compra` exige `compra_id` |
 | `categorias_gasto` | `nombre`, `activo`, `es_sistema bool` | "Ingredientes" es de sistema (no se desactiva) |
 | `gastos` | `categoria_id`, `monto`, `fecha`, `descripcion`, `compra_id null unique`, `anulado_en null` | `monto > 0` |
+| `actividad` | `creado_en`, `creado_por null` (null = seed, migración o sistema), `transaccion bigint` (`txid_current()`), `entidad`, `entidad_id text`, `accion` (`crear`, `editar`, `anular`, `restaurar`), `antes jsonb`, `despues jsonb` | única (`transaccion`, `entidad`, `entidad_id`): una acción = una fila. Solo la escriben triggers (DEC-007) |
 
 ### Vistas (lectura)
 
@@ -173,6 +174,7 @@ Para evitar dobles entregas o dobles abonos simultáneos, las funciones bloquean
 - **Fase 3:** `pagos` y `abonos` solo se leen; se escriben con `registrar_pago`, `anular_pago`, `registrar_abono` y `anular_abono`, y con el `p_pago` opcional de `crear_pedido` (pago inicial) y `cambiar_estado` (cobrar al entregar). Las validaciones comunes están en `privado.insertar_pago`: nunca se paga más que el saldo (no hay saldo a favor). `v_pedidos` suma `pagado`, `saldo` y `estado_pago` (BR-003). `v_saldos_clientes` da `saldo_fiado` (entregados, BR-004), `saldo_total` (no cancelados), `pedidos_fiados` y `fiado_desde`. Un pedido con pagos vigentes no se cancela, y al editarlo el total no puede quedar por debajo de lo pagado. Los abonos sin pedido se reparten del pedido más viejo al más nuevo entre los no cancelados con saldo (DEC-003).
 - **Fase 4:** `ingredientes` es CRUD directo (sin `delete`). `compras` y `movimientos_ingrediente` solo se escriben con `registrar_compra` (compra + movimiento + gasto en "Ingredientes", BR-009; una compra de costo 0 no genera gasto) y `registrar_conteo` (movimiento por la diferencia; si coincide no inserta nada). `ajustar_stock_producto` registra ajustes de catibías con motivo (FR-052). `gastos` existe desde esta fase: los sueltos son CRUD directo, pero los que vienen de una compra no se pueden crear ni editar desde la app (sin permiso sobre `compra_id` y RLS). Vistas `v_stock_ingredientes` y `v_alertas_stock` (sabores e ingredientes activos en o bajo su mínimo, y sabores en negativo). La pantalla de gastos llega en la Fase 5.
 - **Fase 5:** `resumen_financiero(desde, hasta)` (security definer, exige dueño) devuelve un JSON: `vendido` (pedidos entregados en el período según el día real de entrega en Santo Domingo), `envios`, `pedidos_entregados`, `cobrado` y por método (pagos no anulados con fecha en el período), `por_cobrar` (fiado vigente hoy, no depende del período), `gastos` y por categoría (no anulados, incluye compras), `ganancia_aprox` = vendido − gastos (BR-010) y `unidades_por_sabor`. Índice `pedidos_entregado_dia` sobre `privado.dia_sd(entregado_en)`. Los gastos sueltos se anulan con `anulado_en` (no se borran).
+- **Actividad (FR-083, DEC-007):** triggers `actividad` en `clientes`, `productos`, `ingredientes`, `categorias_gasto`, `config_precios`, `pedidos`, `pedido_lineas`, `pagos`, `abonos`, `gastos`, `compras`, `tandas` y `movimientos_*` llaman a funciones `privado.actividad_*` (security definer) que guardan una foto jsonb con los nombres ya resueltos. Una acción por transacción y registro: se conserva el primer `antes` y el último `despues` (crear un pedido con sus líneas o editarlo = una entrada). No se anota aparte lo que es consecuencia de otra acción: movimientos de entregas y tandas, pagos repartidos por un abono, gasto y movimiento de una compra. Editar sin cambiar nada (o reordenar sabores) no se anota. `authenticated` solo tiene `select` (con RLS de dueño); nadie inserta, edita ni borra a mano.
 - En `config.toml`, `[auth] enable_signup = false` bloquea el registro público. `[auth.email] enable_signup` debe quedar en `true`: en `false` desactiva todo el login por correo.
 
 - **Registro público desactivado** en `supabase/config.toml`; los dos dueños se crean a mano (seed local / invitación en producción).
@@ -190,12 +192,13 @@ Para evitar dobles entregas o dobles abonos simultáneos, las funciones bloquean
 | Stock actual y alertas | Alta | suma por `producto_id` / `ingrediente_id` con índices en esas columnas |
 | Saldos de fiado | Media | `pagos (pedido_id)`, `pedidos (cliente_id)` |
 | Resumen financiero por período | Baja | índices por fecha en `pagos`, `gastos`, `pedidos.entregado_en` |
+| Actividad, lo más reciente primero (de 40 en 40, filtro por tipo) | Baja | índices `actividad (creado_en desc)` y `(entidad, creado_en desc)` |
 
 Con el volumen esperado no hacen falta tablas de resumen ni cachés: las sumas sobre movimientos son instantáneas.
 
 ## Data Growth
 
-Supuesto A-01: decenas de pedidos por semana; diseño probado mentalmente hasta ~500/semana (NFR-S-001) ≈ 26.000 pedidos y ~100.000 movimientos al año. Trivial para Postgres.
+Supuesto A-01: decenas de pedidos por semana; diseño probado mentalmente hasta ~500/semana (NFR-S-001) ≈ 26.000 pedidos y ~100.000 movimientos al año. Trivial para Postgres. La actividad suma una fila por acción (del orden de los pedidos + pagos + gastos) y se guarda sin límite.
 
 ## Backup & Recovery
 

@@ -54,6 +54,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"actividad": {
+                  Row: {
+                    "accion": string,"antes": Json | null,"creado_en": string,"creado_por": string | null,"despues": Json | null,"entidad": string,"entidad_id": string,"id": string,"transaccion": number
+                  }
+                  Insert: {
+                    "accion": string,"antes"?: Json | null,"creado_en"?: string,"creado_por"?: string | null,"despues"?: Json | null,"entidad": string,"entidad_id": string,"id"?: string,"transaccion"?: number
+                  }
+                  Update: {
+                    "accion"?: string,"antes"?: Json | null,"creado_en"?: string,"creado_por"?: string | null,"despues"?: Json | null,"entidad"?: string,"entidad_id"?: string,"id"?: string,"transaccion"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "actividad_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"categorias_gasto": {
                   Row: {
                     "activo": boolean,"creado_en": string,"es_sistema": boolean,"id": string,"nombre": string
