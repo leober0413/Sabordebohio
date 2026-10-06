@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
+import type { Database } from '@/types/database'
+
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
@@ -9,7 +11,7 @@ if (!url || !anonKey) {
   )
 }
 
-// Cuando exista src/types/database.ts (Fase 1) se tipa como createClient<Database>.
-export const supabase = createClient(url, anonKey, {
+// La sesión se guarda en el navegador y se renueva sola (FR-081).
+export const supabase = createClient<Database>(url, anonKey, {
   auth: { persistSession: true, autoRefreshToken: true },
 })

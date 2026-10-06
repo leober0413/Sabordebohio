@@ -38,6 +38,15 @@ jobs:
         run: npx supabase test db
       - name: Lint de la base
         run: npx supabase db lint --level warning --fail-on error
+      - name: Tipos generados al día
+        run: |
+          npx supabase gen types typescript --local > /tmp/database.ts
+          diff -u src/types/database.ts /tmp/database.ts || {
+            echo "::error::src/types/database.ts no coincide con las migraciones. Ejecuta: npx supabase gen types typescript --local > src/types/database.ts"
+            exit 1
+          }
+      - name: Variables de Supabase local
+        run: scripts/write-env.sh
 
       - name: Build
         run: npm run build

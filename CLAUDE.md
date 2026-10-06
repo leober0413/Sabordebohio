@@ -35,7 +35,9 @@ npm run test:e2e             # Playwright (build + preview en el puerto 4173)
 - El hook SessionStart (`.claude/settings.json`) ejecuta `scripts/session-start.sh`. Si Supabase no responde, vuelve a ejecutarlo; el log queda en `/tmp/sabor-session-start.log`.
 - La red bloquea ghcr.io, `public.ecr.aws` y `ui.shadcn.com`. Las imágenes de Supabase salen de Docker Hub (`SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`) y los componentes de shadcn/ui se escriben a mano en `src/components/ui/` siguiendo el código de shadcn (`npx shadcn add` no funciona).
 - Playwright usa el Chromium preinstalado vía `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium`. No ejecutes `playwright install`.
-- `.env.local` solo tiene llaves de Supabase local y no se sube a git.
+- `.env.local` solo tiene llaves de Supabase local y no se sube a git (lo genera `scripts/write-env.sh`).
+- Cuentas del seed (solo local/CI, contraseña `bohio-local-123`): `leo@bohio.test` y `maria@bohio.test` son dueños; `intruso@bohio.test` no tiene perfil y no debe ver nada.
+- Para simular un usuario en pgTAP: `select set_config('request.jwt.claims', '{"sub":"<uuid>","role":"authenticated"}', true); set local role authenticated;`.
 
 ## Reglas de Supabase (DEC-001, DEC-005), obligatorias
 

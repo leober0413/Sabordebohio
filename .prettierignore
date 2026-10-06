@@ -8,3 +8,4 @@ supabase/.temp
 supabase/config.toml
 docs
 *.md
+src/types/database.ts
