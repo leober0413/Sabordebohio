@@ -40,7 +40,7 @@ test('validación en español al escribir un precio inválido', async ({ page })
 test('crear, desactivar y deshacer un sabor (FR-001, FR-003)', async ({ page }) => {
   const nombre = `Prueba ${Date.now()}`
   await page.getByLabel('Nuevo sabor').fill(nombre)
-  await page.getByRole('button', { name: 'Agregar' }).click()
+  await page.getByLabel('Nuevo sabor').press('Enter')
 
   const fila = page
     .getByRole('list', { name: 'Lista de sabores' })

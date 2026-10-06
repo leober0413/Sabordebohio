@@ -6,6 +6,7 @@ import { CambiarPassword } from '@/features/auth/CambiarPassword'
 import { cerrarSesion, usePerfil, useSession } from '@/features/auth/hooks'
 import { PreciosCard } from '@/features/ajustes/PreciosCard'
 import { SaboresCard } from '@/features/ajustes/SaboresCard'
+import { CategoriasCard } from '@/features/gastos/CategoriasCard'
 
 export function AjustesPage() {
   const session = useSession()
@@ -17,6 +18,7 @@ export function AjustesPage() {
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         <PreciosCard />
         <SaboresCard />
+        <CategoriasCard />
       </div>
       <Card>
         <CardHeader>

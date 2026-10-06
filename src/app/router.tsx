@@ -8,6 +8,9 @@ import { ClientePage } from '@/features/clientes/ClientePage'
 import { ClientesPage } from '@/features/clientes/ClientesPage'
 import { FiadoPage } from '@/features/clientes/FiadoPage'
 import { RequireDueno } from '@/features/auth/RequireDueno'
+import { FinanzasPage } from '@/features/finanzas/FinanzasPage'
+import { GastoNuevoPage } from '@/features/gastos/GastoNuevoPage'
+import { GastosPage } from '@/features/gastos/GastosPage'
 import { HoyPage } from '@/features/hoy/HoyPage'
 import { CompraPage } from '@/features/inventario/CompraPage'
 import { IngredientePage } from '@/features/inventario/IngredientePage'
@@ -42,6 +45,9 @@ export const router = createBrowserRouter([
       { path: 'fiado', element: <FiadoPage /> },
       { path: 'clientes', element: <ClientesPage /> },
       { path: 'clientes/:id', element: <ClientePage /> },
+      { path: 'gastos', element: <GastosPage /> },
+      { path: 'gastos/nuevo', element: <GastoNuevoPage /> },
+      { path: 'finanzas', element: <FinanzasPage /> },
       { path: 'mas', element: <MasPage /> },
       { path: 'ajustes', element: <AjustesPage /> },
       { path: '*', element: <NotFoundPage /> },
