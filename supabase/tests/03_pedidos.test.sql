@@ -1,7 +1,7 @@
 -- Fase 2 · crear_pedido, actualizar_pedido, cambiar_estado, registrar_tanda,
 -- stock (BR-001, BR-002, BR-005 a BR-008, FR-020 a FR-026, NFR-R-003).
 begin;
-select plan(44);
+select plan(46);
 
 -- Ayudantes: ids del seed y stock actual.
 create function pg_temp.prod(text) returns uuid language sql as
@@ -204,7 +204,9 @@ select is(
   array['entrega:-5', 'hecho_al_momento:5'], 'FR-026: quedan registrados ambos movimientos'
 );
 select lives_ok(format($$select public.cambiar_estado(%L, 'listo')$$, (select id from t where clave = 'p4')), 'revertir hecho al momento');
-select is(pg_temp.stock('T-Res'), 0, 'DEC-006: revertir un "hecho al momento" deja el efecto neto en 0');
+select is(pg_temp.stock('T-Res'), 5, 'DEC-006: al revertir un "hecho al momento", las catibías vuelven al stock');
+select lives_ok(format($$select public.cambiar_estado(%L, 'entregado')$$, (select id from t where clave = 'p4')), 'volver a entregar normal');
+select is(pg_temp.stock('T-Res'), 0, 'DEC-006: entregarlas después descuenta las que quedaron en stock');
 
 -- BR-008: el stock puede quedar negativo.
 select lives_ok(format($$select public.cambiar_estado(%L, 'entregado')$$, (select id from t where clave = 'p2')), 'entregar 3 de res sin stock');
