@@ -1,9 +1,11 @@
 # Despliegue a producción (DEC-001 regla 5, DEC-005 regla 6).
 # Preparado en la Fase 0; se activa en la Fase 2 descomentando el disparador
 # `push` y cargando los secretos y variables del repositorio:
-#   Secrets: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, CLOUDFLARE_API_TOKEN
+#   Secrets: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, VERCEL_TOKEN
 #   Variables: SUPABASE_PROJECT_REF, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY,
-#              CLOUDFLARE_ACCOUNT_ID
+#              VERCEL_ORG_ID, VERCEL_PROJECT_ID
+# vercel.json desactiva los despliegues automáticos de Vercel desde Git: solo
+# se publica desde aquí, después de aplicar las migraciones.
 # Las sesiones de Claude Code nunca tienen estas credenciales.
 name: Deploy
 
@@ -42,14 +44,14 @@ jobs:
           # (`supabase config push`) cuando site_url de producción esté
           # parametrizado; hoy apunta a localhost.
 
-      - name: Build
+      - name: Build y publicar en Vercel (DEC-002)
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
-        run: npm run build
-
-      - name: Publicar en Cloudflare Pages (DEC-002)
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 pages deploy dist --project-name=sabor-de-bohio --branch=main
+        run: |
+          npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+          npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"

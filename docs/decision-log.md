@@ -94,7 +94,7 @@ Cumple todos los requisitos relevantes con la menor cantidad de piezas, aprovech
 
 ### Decision
 
-Construir el frontend como una **single-page app** con React + TypeScript + Vite, instalable como PWA (`vite-plugin-pwa`). Habla directo con Supabase mediante `supabase-js`. Se publica como sitio estático en **Cloudflare Pages** (plan gratuito), desplegado desde GitHub Actions (`deploy.yml`).
+Construir el frontend como una **single-page app** con React + TypeScript + Vite, instalable como PWA (`vite-plugin-pwa`). Habla directo con Supabase mediante `supabase-js`. Se publica como sitio estático en **Vercel**, desplegado desde GitHub Actions (`deploy.yml`) con la CLI de Vercel.
 
 Librerías propuestas: Tailwind CSS (estilos mobile-first), TanStack Query (caché y refresco de datos), React Router (navegación), React Hook Form + Zod (formularios rápidos y validados).
 
@@ -143,14 +143,14 @@ Es la opción con menos piezas que cumple todos los requisitos: archivos estáti
 
 **Media-alta.** Next.js también sería razonable; la diferencia es de simplicidad, no de capacidad.
 
-### Hosting (cerrado en la Fase 0, 2026-10-06)
+### Hosting (cerrado en la Fase 0, 2026-10-06 — elección del dueño)
 
 | Opción | Estado | Razón |
 |---|---|---|
-| **Cloudflare Pages** | SELECTED | El plan gratuito permite uso comercial, sin límite de ancho de banda, y sirve la SPA con fallback a `index.html` sin configuración. Se publica con `wrangler pages deploy` desde GitHub Actions, así que el token vive solo en Actions Secrets. |
-| Vercel | REJECTED | El plan Hobby es solo para uso personal y no comercial; Sabor de Bohío es un negocio, así que obligaría al plan Pro (NFR-C-001). |
+| **Vercel** | SELECTED | Elegido por el dueño. Se publica con `vercel build` + `vercel deploy --prebuilt` desde GitHub Actions, después de `supabase db push`; `vercel.json` desactiva los despliegues automáticos desde Git y redirige las rutas de la SPA a `index.html`. El token vive solo en Actions Secrets. |
+| Cloudflare Pages | REJECTED | Era la recomendación técnica (plan gratuito con uso comercial), pero el dueño prefiere Vercel. |
 
-Todavía no se ha creado ninguna cuenta: si el dueño prefiere otro hosting, se cambia antes de la Fase 2 tocando solo el último paso de `deploy.yml`.
+**Riesgo conocido:** los términos del plan Hobby de Vercel lo limitan a uso personal y no comercial. Sabor de Bohío es un negocio, así que puede requerir el plan Pro (afecta NFR-C-001). Verificar las condiciones vigentes al crear la cuenta en la Fase 2. Cambiar de hosting solo toca el último paso de `deploy.yml` y `vercel.json`.
 
 ### Trigger for Reconsideration
 

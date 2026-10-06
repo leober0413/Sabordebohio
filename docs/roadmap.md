@@ -17,7 +17,7 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 - `.claude/settings.json` con hook SessionStart que ejecuta `scripts/session-start.sh` (arranca Supabase local y aplica migraciones).
 - ESLint + Prettier; Vitest; Playwright.
 - `ci.yml`. `deploy.yml` preparado (se activa en Fase 2).
-- Elegir hosting del frontend: Cloudflare Pages o Vercel (cerrar DEC-002). → **Cloudflare Pages.**
+- Elegir hosting del frontend: Cloudflare Pages o Vercel (cerrar DEC-002). → **Vercel.**
 - **Validar DEC-005:** `supabase start` funciona en la sesión en la nube. → **Validado** (ver DEC-005).
 
 **Hecho cuando:** CI pasa en un PR vacío; `supabase start` funciona en la nube; la app muestra una pantalla vacía con el tema aplicado e instalable como PWA.

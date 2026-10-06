@@ -12,7 +12,7 @@
 | Producto y problema | Claro | `product-discovery.md` |
 | MVP | Definido | `mvp.md` |
 | Requisitos | VALIDATED | `requirements.md` |
-| Stack | ADOPTED (DEC-001, DEC-002; hosting: Cloudflare Pages) | `decision-log.md` |
+| Stack | ADOPTED (DEC-001, DEC-002; hosting: Vercel) | `decision-log.md` |
 | UI/UX | Principios + prototipo | `ui-ux.md` |
 | Base de datos y RPC | PROVISIONALLY SELECTED | `database.md` |
 | Seguridad | Cubierta en el diseño de datos (RLS, RPC, sin registro público) | `database.md` |
@@ -23,7 +23,7 @@
 ## Validaciones de la Fase 0 (resueltas)
 
 1. ✅ `supabase start` funciona dentro de la sesión de Claude Code en la nube (DEC-005 → VALIDATED). Requiere arrancar Docker y usar Docker Hub; lo hace `scripts/session-start.sh`.
-2. ✅ Hosting del frontend: **Cloudflare Pages** (cierra DEC-002). Vercel Hobby no permite uso comercial.
+2. ✅ Hosting del frontend: **Vercel**, por elección del dueño (cierra DEC-002). Verificar en la Fase 2 si el uso comercial obliga al plan Pro.
 
 ## Pendientes de negocio (no bloquean)
 
