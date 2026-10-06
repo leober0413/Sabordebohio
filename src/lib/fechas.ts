@@ -75,3 +75,14 @@ export function haceDias(desde: string, hoy: string = hoySD()): string {
   if (n === 1) return 'hace 1 día'
   return `hace ${n} días`
 }
+
+const horaSD = new Intl.DateTimeFormat('es-DO', {
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: ZONA,
+})
+
+/** Hora en Santo Domingo de un instante ('2026-10-06T19:50:00Z' → '3:50 p. m.'). */
+export function formatHoraDeInstante(instante: string): string {
+  return horaSD.format(new Date(instante))
+}

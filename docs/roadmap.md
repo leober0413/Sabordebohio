@@ -84,6 +84,11 @@ Fase 0 → Fase 1 → Fase 2 → Fase 3
 ```
 Fases 3 y 4 son independientes entre sí después de la 2.
 
+## Mejoras posteriores al MVP
+
+- Guía para cambiar la contraseña temporal al primer inicio (PR #10).
+- Actividad: registro de quién hizo qué y cuándo, con antes → después (FR-083, DEC-007).
+
 ## Después del MVP (no planificado)
 
 Descuento de ingredientes por receta, notificaciones push, integración con WhatsApp, catálogo público. Ver "Fuera del alcance" en `mvp.md`.

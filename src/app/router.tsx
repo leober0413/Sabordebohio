@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 
 import { AppLayout } from '@/app/AppLayout'
+import { ActividadPage } from '@/features/actividad/ActividadPage'
 import { NotFoundPage } from '@/app/NotFoundPage'
 import { AjustesPage } from '@/features/ajustes/AjustesPage'
 import { LoginPage } from '@/features/auth/LoginPage'
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
       { path: 'gastos', element: <GastosPage /> },
       { path: 'gastos/nuevo', element: <GastoNuevoPage /> },
       { path: 'finanzas', element: <FinanzasPage /> },
+      { path: 'actividad', element: <ActividadPage /> },
       { path: 'mas', element: <MasPage /> },
       { path: 'ajustes', element: <AjustesPage /> },
       { path: '*', element: <NotFoundPage /> },

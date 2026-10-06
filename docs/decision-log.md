@@ -324,3 +324,37 @@ BR-006 dice que "su descuento de stock se reintegra". Con una entrega normal (�
 ### Consequences
 
 Si se marca "hecho al momento" por error y se deshace, el stock queda con N de más; se corrige con un ajuste manual (FR-052, Fase 4).
+
+---
+
+## DEC-007 — Actividad: registro por triggers con fotos en jsonb
+
+- **Status:** ADOPTED (2026-10-06 — pedido del dueño)
+- **Date:** 2026-10-06
+- **Domain:** database / ui
+- **Related decisions:** FR-082, FR-083, DEC-001, BR-011
+
+### Decision
+
+La tabla `actividad` la llenan triggers en las tablas del negocio, no las RPC. Cada entrada guarda una foto `antes` / `despues` en jsonb con los nombres ya resueltos (cliente, sabor, categoría) y la app arma el texto (`src/features/actividad/describir.ts`). Alcance elegido por el dueño: solo acciones de los dueños (sin inicios de sesión) y, en las ediciones, el antes → después.
+
+### Context
+
+El dueño pidió ver un registro de lo que pasa en el sistema. Ya existían `creado_por` y `anulado_en`, pero no las ediciones (un pedido editado o un precio cambiado no dejaban rastro del valor anterior).
+
+### Alternatives
+
+| Alternativa | Estado | Razón |
+|---|---|---|
+| Triggers + fotos jsonb | ADOPTED | No toca las RPC ya probadas; cubre también las escrituras directas (clientes, gastos, precios). Las fotos se leen igual aunque luego cambie un nombre. |
+| Llamar a un `anotar()` desde cada RPC | REJECTED | Hay que reescribir todas las RPC (migraciones nuevas con su código completo) y no cubre las tablas con escritura directa. |
+| Vista que une `creado_en` / `anulado_en` de las tablas | REJECTED | No ve las ediciones ni el valor anterior. |
+| Incluir inicios de sesión (`auth.audit_log_entries`) | REJECTED | El dueño eligió solo acciones. |
+
+### Consequences
+
+- Una acción = una entrada por transacción y registro (clave única `transaccion, entidad, entidad_id`). Por eso las pruebas pgTAP, que corren en una sola transacción, "cierran" las entradas entre pasos (`pg_temp.siguiente_peticion`).
+- Lo que es consecuencia de otra acción no se anota aparte (movimientos de entregas y tandas, pagos de un abono, gasto y movimiento de una compra).
+- Empieza vacía en producción: no hay historial de antes de esta migración.
+- Si se agrega una tabla o columna editable, hay que revisar su trigger y `describir.ts`.
+

@@ -124,6 +124,7 @@ No hay sistemas externos ni procesos automáticos en el MVP.
 | FR-080 | Cada dueño entra con su propia cuenta. No existe registro público. | MVP-9 | Una persona sin cuenta no puede ver ningún dato. | Must |
 | FR-081 | La sesión se mantiene abierta en el celular hasta que el dueño cierre sesión. | NFR-U-001 | No se pide login cada vez que se abre la app. | Must |
 | FR-082 | Cada movimiento, pedido y pago guarda qué dueño lo registró. | BR-007 | El historial muestra "registrado por Leo". | Should |
+| FR-083 | El dueño puede ver la **actividad**: quién registró, editó o anuló algo y cuándo, con el antes → después en las ediciones. Cubre pedidos (crear, editar, cambios de estado), pagos, abonos, gastos, compras, tandas, ajustes y conteos de stock, clientes, sabores, ingredientes, categorías y la lista de precios. | FR-082 (pedido del dueño, 2026-10-06; DEC-007) | Si Leo cambia un pedido de 6 a 8 de pollo, en Actividad sale "Editó el pedido de Ana · Pollo: 6 → 8 · Leo · 3:45 p. m.". Nadie puede editar ni borrar la actividad. | Should |
 
 ## Requisitos no funcionales
 

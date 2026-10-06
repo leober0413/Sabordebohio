@@ -4,6 +4,7 @@ import {
   ClipboardList,
   Ellipsis,
   Factory,
+  History,
   HandCoins,
   House,
   Package,
@@ -29,6 +30,7 @@ const LATERAL = [
   { to: '/inventario', label: 'Inventario', Icono: Package },
   { to: '/gastos', label: 'Gastos', Icono: Receipt },
   { to: '/finanzas', label: 'Finanzas', Icono: ChartColumn },
+  { to: '/actividad', label: 'Actividad', Icono: History },
   { to: '/ajustes', label: 'Ajustes', Icono: Settings },
 ]
 
@@ -158,7 +160,14 @@ export function AppLayout() {
               to="/mas"
               label="Más"
               Icono={Ellipsis}
-              activoTambien={['/ajustes', '/fiado', '/clientes', '/gastos', '/finanzas']}
+              activoTambien={[
+                '/ajustes',
+                '/fiado',
+                '/clientes',
+                '/gastos',
+                '/finanzas',
+                '/actividad',
+              ]}
             />
           </ul>
         </nav>
