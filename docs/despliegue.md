@@ -55,6 +55,7 @@ En el repo: **Settings → Environments → New environment** `production`. Dent
 
 ## Después
 - Cada merge a `main` aplica las migraciones nuevas y publica la app.
+- La app instalada busca versión nueva al abrirla, al volver a ella y cada 30 minutos. Si hay una, muestra "Hay una versión nueva de la app" con **Actualizar**; si no se toca, se aplica sola al salir de la app (no recarga mientras alguien llena un pedido). Ver `src/lib/actualizaciones.ts`.
 - `supabase/seed.sql` **nunca** se aplica en producción.
 - Si algo falla en `deploy.yml`, la página anterior sigue publicada; el log dice en qué paso falló.
 
