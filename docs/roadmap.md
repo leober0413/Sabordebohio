@@ -43,7 +43,7 @@ Tamaños relativos: **S** (una sesión corta), **M** (una o dos sesiones), **L**
 
 **Hecho cuando:** los dueños registran pedidos reales desde sus celulares y el stock de catibías se mueve solo. **Empieza el uso en paralelo con la memoria.**
 
-## Fase 3 — Pagos y fiado (M)
+## Fase 3 — Pagos y fiado (M) · ✅ terminada (2026-10-06)
 
 - Migraciones: `pagos`, `abonos`, vista `v_saldos_clientes`.
 - RPC: `registrar_pago`, `registrar_abono`, `anular_pago`, `anular_abono`; pago inicial en `crear_pedido`.

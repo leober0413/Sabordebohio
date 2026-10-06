@@ -67,3 +67,11 @@ export function formatHora(valor: string): string {
 export function diasEntre(a: string, b: string): number {
   return Math.round((aUTC(b).getTime() - aUTC(a).getTime()) / 86_400_000)
 }
+
+/** "hoy", "hace 1 día", "hace 5 días" (FR-042). */
+export function haceDias(desde: string, hoy: string = hoySD()): string {
+  const n = diasEntre(desde, hoy)
+  if (n <= 0) return 'hoy'
+  if (n === 1) return 'hace 1 día'
+  return `hace ${n} días`
+}

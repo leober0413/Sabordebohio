@@ -22,6 +22,8 @@ interface Props {
   valoresIniciales?: Partial<PedidoFormValues>
   textoGuardar: string
   guardando: boolean
+  /** Muestra la sección de pago (solo al crear; al editar los pagos van en el detalle). */
+  conPago?: boolean
   onGuardar: (datos: DatosPedido) => void
 }
 
@@ -32,6 +34,7 @@ export function PedidoForm({
   valoresIniciales,
   textoGuardar,
   guardando,
+  conPago = false,
   onGuardar,
 }: Props) {
   const hoy = hoySD()
@@ -52,13 +55,16 @@ export function PedidoForm({
       tipoEntrega: 'recoge',
       costoEnvio: '',
       notas: '',
+      pagoModo: 'pendiente',
+      pagoMetodo: 'efectivo',
+      pagoMonto: '',
       ...valoresIniciales,
     },
   })
 
-  const [cantidades, fechaEntrega, tipoEntrega, costoEnvio] = useWatch({
+  const [cantidades, fechaEntrega, tipoEntrega, costoEnvio, pagoModo] = useWatch({
     control,
-    name: ['cantidades', 'fechaEntrega', 'tipoEntrega', 'costoEnvio'],
+    name: ['cantidades', 'fechaEntrega', 'tipoEntrega', 'costoEnvio', 'pagoModo'],
   })
   const unidades = totalUnidades(cantidades)
   const envio =
@@ -88,6 +94,10 @@ export function PedidoForm({
       tipoEntrega: v.tipoEntrega,
       costoEnvio: v.tipoEntrega === 'delivery' && v.costoEnvio ? Number(v.costoEnvio) : 0,
       notas: v.notas.trim() || null,
+      pago:
+        conPago && v.pagoModo !== 'pendiente'
+          ? { metodo: v.pagoMetodo, monto: v.pagoModo === 'parcial' ? Number(v.pagoMonto) : null }
+          : null,
     })
 
   return (
@@ -206,6 +216,61 @@ export function PedidoForm({
           <FieldError id="notas-error" message={errors.notas?.message} />
         </div>
       </section>
+
+      {conPago && (
+        <section className="flex flex-col gap-3" aria-labelledby="titulo-pago">
+          <h2 id="titulo-pago" className="text-lg font-semibold">
+            Pago
+          </h2>
+          <Controller
+            control={control}
+            name="pagoModo"
+            render={({ field }) => (
+              <Segmented
+                label="Estado del pago"
+                value={field.value}
+                onChange={field.onChange}
+                options={[
+                  { value: 'pendiente', label: 'Por cobrar' },
+                  { value: 'completo', label: 'Pagado' },
+                  { value: 'parcial', label: 'Parcial' },
+                ]}
+              />
+            )}
+          />
+          {pagoModo !== 'pendiente' && (
+            <Controller
+              control={control}
+              name="pagoMetodo"
+              render={({ field }) => (
+                <Segmented
+                  label="Método de pago"
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={[
+                    { value: 'efectivo', label: 'Efectivo' },
+                    { value: 'transferencia', label: 'Transferencia' },
+                  ]}
+                />
+              )}
+            />
+          )}
+          {pagoModo === 'parcial' && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="pagoMonto">Cuánto pagó (RD$)</Label>
+              <Input
+                id="pagoMonto"
+                inputMode="decimal"
+                className="tabular"
+                aria-invalid={!!errors.pagoMonto}
+                aria-describedby={errors.pagoMonto ? 'pago-monto-error' : undefined}
+                {...register('pagoMonto')}
+              />
+              <FieldError id="pago-monto-error" message={errors.pagoMonto?.message} />
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Total y guardar, fijos abajo al alcance del pulgar (docs/ui-ux.md §1.2). */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:left-60">

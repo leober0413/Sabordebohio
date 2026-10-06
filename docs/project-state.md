@@ -1,7 +1,7 @@
 # Project State — "Sabor de Bohío"
 
 **Última actualización:** 2026-10-06
-**Etapa:** BUILD — Fases 0, 1 y 2 con código terminado (PRs encadenados, pendientes de merge). Falta el **despliegue público** (pasos del dueño en `despliegue.md`) para empezar el uso real.
+**Etapa:** BUILD — Fases 0 a 2 en producción; Fase 3 (pagos y fiado) y Fase 4 (inventario y alertas) en PR paralelos.
 
 ## Readiness
 

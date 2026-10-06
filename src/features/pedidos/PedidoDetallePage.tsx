@@ -1,13 +1,16 @@
 import { Bike, CalendarDays, Pencil, Phone, Store, StickyNote } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 
 import { CargandoLista, ErrorCarga } from '@/components/Cargando'
 import { PageHeader } from '@/components/PageHeader'
+import { Segmented } from '@/components/Segmented'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { PagosPedido } from '@/features/pagos/PagosPedido'
 import { EstadoBadge } from '@/features/pedidos/EstadoBadge'
 import { useCambiarEstado, usePedido } from '@/features/pedidos/queries'
-import type { EstadoPedido, Pedido } from '@/features/pedidos/tipos'
+import type { EstadoPedido, MetodoPago, Pedido } from '@/features/pedidos/tipos'
 import { formatDinero } from '@/lib/dinero'
 import { formatFechaRelativa, formatHora } from '@/lib/fechas'
 
@@ -47,7 +50,12 @@ function Detalle({ pedido }: { pedido: Pedido }) {
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="text-xl font-semibold">{pedido.cliente_nombre}</p>
+              <Link
+                to={`/clientes/${pedido.cliente_id}`}
+                className="block text-xl font-semibold underline-offset-4 hover:underline"
+              >
+                {pedido.cliente_nombre}
+              </Link>
               {pedido.cliente_telefono && (
                 <a
                   href={`tel:${pedido.cliente_telefono}`}
@@ -110,23 +118,45 @@ function Detalle({ pedido }: { pedido: Pedido }) {
         </CardContent>
       </Card>
       <Acciones pedido={pedido} />
+      <PagosPedido pedido={pedido} />
     </>
   )
 }
 
-/** Acciones según el estado (FR-022, FR-025, FR-026). */
+/** Acciones según el estado (FR-022, FR-025, FR-026) y cobro al entregar (FR-041). */
 function Acciones({ pedido }: { pedido: Pedido }) {
   const cambiar = useCambiarEstado()
+  // Por defecto se cobra en efectivo al entregar (docs/ui-ux.md §1.1).
+  const [cobro, setCobro] = useState<'no' | MetodoPago>('efectivo')
+  const debe = pedido.saldo > 0
+  const pago = debe && cobro !== 'no' ? { metodo: cobro, monto: null } : null
   const ir = (estado: EstadoPedido, hechoAlMomento = false) =>
-    cambiar.mutate({ pedido, estado, hechoAlMomento })
+    cambiar.mutate({ pedido, estado, hechoAlMomento, pago: estado === 'entregado' ? pago : null })
   const ocupado = cambiar.isPending
 
   return (
     <div className="flex flex-col gap-2">
       {(pedido.estado === 'pendiente' || pedido.estado === 'listo') && (
         <>
+          {debe && (
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-muted-foreground">
+                Al entregar, cobrar {formatDinero(pedido.saldo)}:
+              </p>
+              <Segmented
+                label="Cobrar al entregar"
+                value={cobro}
+                onChange={setCobro}
+                options={[
+                  { value: 'efectivo', label: 'Efectivo' },
+                  { value: 'transferencia', label: 'Transferencia' },
+                  { value: 'no', label: 'Fiado' },
+                ]}
+              />
+            </div>
+          )}
           <Button size="lg" disabled={ocupado} onClick={() => ir('entregado')}>
-            Entregar
+            {pago ? `Entregar y cobrar ${formatDinero(pedido.saldo)}` : 'Entregar'}
           </Button>
           <Button variant="outline" disabled={ocupado} onClick={() => ir('entregado', true)}>
             Entregar · hecho al momento

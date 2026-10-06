@@ -26,7 +26,7 @@ const productos = [
   { id: 'queso', nombre: 'Queso', activo: true, orden: 2 },
 ] as Producto[]
 
-function renderForm(onGuardar = vi.fn()) {
+function renderForm(onGuardar = vi.fn(), conPago = false) {
   renderConProveedores(
     <PedidoForm
       productos={productos}
@@ -34,6 +34,7 @@ function renderForm(onGuardar = vi.fn()) {
       valoresIniciales={{ clienteId: 'c1' }}
       textoGuardar="Guardar pedido"
       guardando={false}
+      conPago={conPago}
       onGuardar={onGuardar}
     />,
   )
@@ -85,6 +86,43 @@ describe('PedidoForm', () => {
           costoEnvio: 100,
           horaEntrega: null,
         }),
+      ),
+    )
+  })
+
+  it('"Pagado" envía el pago por todo el saldo; "Por cobrar" no envía pago (FR-041)', async () => {
+    const user = userEvent.setup()
+    const onGuardar = renderForm(vi.fn(), true)
+    await user.click(screen.getByRole('button', { name: 'Agregar una de Pollo' }))
+    expect(screen.getByRole('radio', { name: 'Por cobrar' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+
+    await user.click(screen.getByRole('radio', { name: 'Pagado' }))
+    await user.click(screen.getByRole('radio', { name: 'Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar pedido' }))
+    await waitFor(() =>
+      expect(onGuardar).toHaveBeenCalledWith(
+        expect.objectContaining({ pago: { metodo: 'transferencia', monto: null } }),
+      ),
+    )
+  })
+
+  it('"Parcial" exige el monto', async () => {
+    const user = userEvent.setup()
+    const onGuardar = renderForm(vi.fn(), true)
+    await user.click(screen.getByRole('button', { name: 'Agregar una de Pollo' }))
+    await user.click(screen.getByRole('radio', { name: 'Parcial' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar pedido' }))
+    expect(await screen.findByText('Escribe cuánto pagó, por ejemplo 200.')).toBeInTheDocument()
+    expect(onGuardar).not.toHaveBeenCalled()
+
+    await user.type(screen.getByLabelText('Cuánto pagó (RD$)'), '20')
+    await user.click(screen.getByRole('button', { name: 'Guardar pedido' }))
+    await waitFor(() =>
+      expect(onGuardar).toHaveBeenCalledWith(
+        expect.objectContaining({ pago: { metodo: 'efectivo', monto: 20 } }),
       ),
     )
   })

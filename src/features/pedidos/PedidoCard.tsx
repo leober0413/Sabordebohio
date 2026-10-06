@@ -2,6 +2,7 @@ import { Bike, Clock, Store } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { Button } from '@/components/ui/button'
+import { PagoBadge } from '@/features/pagos/PagoBadge'
 import { EstadoBadge } from '@/features/pedidos/EstadoBadge'
 import { useCambiarEstado } from '@/features/pedidos/queries'
 import { resumenLineas, SIGUIENTE_ACCION, type Pedido } from '@/features/pedidos/tipos'
@@ -58,6 +59,14 @@ export function PedidoCard({
             {pedido.tipo_entrega === 'delivery' ? 'Delivery' : 'Recoge'}
           </span>
           <span className="font-medium text-foreground tabular">{formatDinero(pedido.total)}</span>
+          {pedido.estado !== 'cancelado' && (
+            <span className="inline-flex items-center gap-1">
+              <PagoBadge estado={pedido.estado_pago} />
+              {pedido.estado_pago === 'parcial' && (
+                <span className="tabular">debe {formatDinero(pedido.saldo)}</span>
+              )}
+            </span>
+          )}
         </p>
       </div>
       {accion && (

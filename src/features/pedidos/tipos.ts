@@ -5,6 +5,8 @@ type Enums = Database['public']['Enums']
 
 export type EstadoPedido = Enums['estado_pedido']
 export type TipoEntrega = Enums['tipo_entrega']
+export type EstadoPago = Enums['estado_pago']
+export type MetodoPago = Enums['metodo_pago']
 
 export interface LineaPedido {
   producto_id: string
@@ -33,6 +35,24 @@ export const ETIQUETA_ESTADO: Record<EstadoPedido, string> = {
   listo: 'Listo',
   entregado: 'Entregado',
   cancelado: 'Cancelado',
+}
+
+export const ETIQUETA_PAGO: Record<EstadoPago, string> = {
+  pagado: 'Pagado',
+  parcial: 'Parcial',
+  pendiente: 'Por cobrar',
+}
+
+export const ETIQUETA_METODO: Record<MetodoPago, string> = {
+  efectivo: 'Efectivo',
+  transferencia: 'Transferencia',
+}
+
+/** Pago que acompaña a crear o entregar: monto null = todo el saldo (FR-041). */
+// `type` y no `interface`: así es asignable a Json en las llamadas RPC.
+export type PagoRapido = {
+  metodo: MetodoPago
+  monto: number | null
 }
 
 /** "4 Pollo · 2 Queso" */
