@@ -11,6 +11,7 @@ Producción se publica **solo desde GitHub Actions** (DEC-001, DEC-005). Las ses
 | `deploy.yml` | Cada push a `main` (y manual) | `supabase db push` (migraciones) → build → publica en Vercel. Si falta algún secreto o variable, **se salta sin fallar** y lo avisa. |
 | `config-auth.yml` | Manual, una vez (y si cambia la config de auth) | Aplica `supabase/config.toml` a producción con la URL real: registro público desactivado (FR-080), URL del sitio y largo mínimo de contraseña. |
 | `crear-dueno.yml` | Manual, una vez por dueño | Crea la cuenta y el perfil de un dueño con una contraseña temporal. |
+| `backup.yml` | Todos los días a las 5:17 a. m. (y manual) | Copia de seguridad cifrada de la base (esquema + datos + cuentas), guardada 30 días. Ver "Copias de seguridad". |
 
 ## Pasos
 
@@ -43,6 +44,7 @@ En el repo: **Settings → Environments → New environment** `production`. Dent
 | Variable | `VERCEL_ORG_ID` | Org ID |
 | Variable | `VERCEL_PROJECT_ID` | Project ID |
 | Variable | `SITE_URL` | URL pública de la app en Vercel, p. ej. `https://sabor-de-bohio.vercel.app` |
+| Secret | `BACKUP_PASSPHRASE` | Clave para cifrar las copias de seguridad. Una frase larga que **guardan los dueños fuera de GitHub** (sin ella no se pueden abrir las copias). |
 
 ### 4. Primer despliegue
 1. **Actions → Deploy → Run workflow** (o mergea a `main`). Aplica las migraciones y publica la página.
@@ -55,3 +57,27 @@ En el repo: **Settings → Environments → New environment** `production`. Dent
 - Cada merge a `main` aplica las migraciones nuevas y publica la app.
 - `supabase/seed.sql` **nunca** se aplica en producción.
 - Si algo falla en `deploy.yml`, la página anterior sigue publicada; el log dice en qué paso falló.
+
+## Copias de seguridad (NFR-R-002)
+
+El plan gratuito de Supabase **no incluye copias de seguridad**, así que las hace `backup.yml` cada día:
+
+1. Vuelca el esquema y los datos de producción (incluye las cuentas de los dueños).
+2. Los comprime y los **cifra con AES-256** usando `BACKUP_PASSPHRASE`: contienen nombres y teléfonos de clientes, así que nunca se guardan sin cifrar.
+3. Los guarda como artefacto privado de GitHub Actions durante **30 días**.
+
+Mientras falte `BACKUP_PASSPHRASE`, la copia se salta y lo avisa. Para probarla: **Actions → Copia de seguridad → Run workflow**.
+
+### Restaurar
+
+1. **Actions → Copia de seguridad →** la corrida del día que quieras **→ Artifacts →** descarga `sabor-de-bohio-AAAA-MM-DD`.
+2. Descífrala (pide la clave): `gpg -d sabor-de-bohio-AAAA-MM-DD.tar.gz.gpg | tar -xz` → quedan `esquema.sql` y `datos.sql`.
+3. En un proyecto de Supabase **nuevo y vacío**, con la cadena de conexión de su base (`Project Settings → Database`):
+   ```bash
+   psql "$CONEXION" --single-transaction -v ON_ERROR_STOP=1 \
+     -c "set session_replication_role = replica" -f esquema.sql -f datos.sql
+   ```
+4. Apunta las variables de GitHub (`SUPABASE_PROJECT_REF`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) al proyecto nuevo y corre **Deploy** y **Config de auth**.
+
+El procedimiento de datos se probó en local: base vacía con las migraciones + `datos.sql` deja los mismos pedidos, pagos, gastos y cuentas, y los dueños pueden entrar.
+

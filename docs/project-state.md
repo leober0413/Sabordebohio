@@ -1,7 +1,7 @@
 # Project State — "Sabor de Bohío"
 
 **Última actualización:** 2026-10-06
-**Etapa:** BUILD — Fases 0 a 4 terminadas; siguiente: **Fase 5** (gastos y finanzas).
+**Etapa:** BUILD terminado — Fases 0 a 6 con código completo. Siguiente: **uso real** y revisión de los criterios de éxito de `mvp.md` tras 2 semanas.
 
 ## Readiness
 
@@ -41,9 +41,6 @@
 
 ## Próximo paso
 
-1. Mergear los PR de las Fases 0, 1 y 2, en ese orden.
-2. Seguir `docs/despliegue.md` (cuentas de Supabase y Vercel, secretos en GitHub, crear los dos dueños).
-3. Empezar el uso real en paralelo con la memoria y medir el registro de pedidos (< 30 s, NFR-U-001).
-4. Luego las Fases 3 (pagos y fiado) y 4 (inventario y alertas), que son independientes entre sí.
-
-Recomendado en la configuración del entorno de la nube (DEC-005 regla 3): setup script con `npm ci` y `bash scripts/session-start.sh && npx supabase stop` para que las imágenes de Docker queden en caché.
+1. Mergear los PR pendientes (Fases 5 y 6) y cargar el secreto `BACKUP_PASSPHRASE` (ver `despliegue.md`).
+2. Usar la app en paralelo con la memoria durante **2 semanas** y medir el registro de pedidos (< 30 s, NFR-U-001).
+3. **Revisión de criterios de éxito** de `mvp.md` con los dueños (Fase 6, tarea manual): qué se usa, qué estorba, si el reparto de abonos (DEC-003) y DEC-006 funcionan en la práctica, y qué sigue de "Después del MVP" en el roadmap.

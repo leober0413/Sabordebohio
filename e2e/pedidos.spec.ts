@@ -65,7 +65,8 @@ test('pedidos de mañana en la lista por día (FR-033)', async ({ page }) => {
   await page.goto('/pedidos')
   await page.getByRole('button', { name: 'Día siguiente' }).click()
   await expect(page.getByText('Mañana', { exact: true })).toBeVisible()
-  await expect(page.getByRole('article').filter({ hasText: 'María Pérez' })).toContainText(
-    '12 Pollo · 12 Res',
-  )
+  // Tarjeta en celular, fila de tabla en PC.
+  await expect(
+    page.getByRole('main').getByText('12 Pollo · 12 Res').filter({ visible: true }),
+  ).toBeVisible()
 })

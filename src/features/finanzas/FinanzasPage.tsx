@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { SelectorPeriodo } from '@/components/SelectorPeriodo'
 import { usePeriodo } from '@/components/usePeriodo'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ExportarCard } from '@/features/exportar/ExportarCard'
 import { useResumen, type Resumen } from '@/features/finanzas/queries'
 import { formatDinero } from '@/lib/dinero'
 import { cn } from '@/lib/utils'
@@ -25,6 +26,7 @@ export function FinanzasPage() {
       ) : (
         <Detalle r={resumen.data} />
       )}
+      <ExportarCard rango={rango} />
     </section>
   )
 }

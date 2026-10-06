@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Segmented } from '@/components/Segmented'
 import { Button } from '@/components/ui/button'
 import { PedidoCard } from '@/features/pedidos/PedidoCard'
+import { PedidosTabla } from '@/features/pedidos/PedidosTabla'
 import { usePedidosDelDia } from '@/features/pedidos/queries'
 import { ordenarPorHora, type EstadoPedido } from '@/features/pedidos/tipos'
 import { formatDinero } from '@/lib/dinero'
@@ -120,10 +121,14 @@ export function PedidosPage() {
             {lista.length} {lista.length === 1 ? 'pedido' : 'pedidos'} · vendido del día{' '}
             {formatDinero(vendido)}
           </p>
-          <div className="grid gap-3 lg:grid-cols-2">
+          {/* Celular y tableta: tarjetas. PC: tabla (NFR-U-005). */}
+          <div className="grid gap-3 lg:hidden">
             {lista.map((p) => (
               <PedidoCard key={p.id} pedido={p} />
             ))}
+          </div>
+          <div className="hidden lg:block">
+            <PedidosTabla pedidos={lista} />
           </div>
         </>
       )}
