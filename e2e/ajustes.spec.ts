@@ -4,7 +4,7 @@ import { entrarComoDueno } from './helpers.ts'
 
 test.beforeEach(async ({ page }) => {
   await entrarComoDueno(page)
-  await page.getByRole('link', { name: 'Ajustes' }).click()
+  await page.goto('/ajustes')
   await expect(page.getByRole('heading', { name: 'Ajustes' })).toBeVisible()
 })
 

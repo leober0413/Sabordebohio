@@ -1,7 +1,7 @@
 -- FR-080, NFR-SEC-002 · Un usuario sin perfil o anónimo no lee ni escribe
 -- nada; un dueño sí. Las categorías de sistema están protegidas.
 begin;
-select plan(23);
+select plan(31);
 
 -- ---------- anónimo ----------
 set local role anon;
@@ -11,6 +11,8 @@ select throws_ok('select * from public.config_precios', '42501', null, 'anon: no
 select throws_ok('select * from public.perfiles', '42501', null, 'anon: no lee perfiles');
 select throws_ok('select * from public.categorias_gasto', '42501', null, 'anon: no lee categorías');
 select throws_ok('select public.es_dueno()', '42501', null, 'anon: no ejecuta es_dueno');
+select throws_ok('select * from public.v_pedidos', '42501', null, 'anon: no lee pedidos');
+select throws_ok($$select public.crear_pedido(gen_random_uuid(), '[]')$$, '42501', null, 'anon: no crea pedidos');
 reset role;
 
 -- ---------- autenticado sin perfil ----------
@@ -29,6 +31,21 @@ select throws_ok(
 select throws_ok(
   $$insert into public.clientes (nombre) values ('Intruso')$$, '42501', null,
   'intruso: no crea clientes'
+);
+select is_empty('select * from public.v_pedidos', 'intruso: no ve pedidos');
+select is_empty('select * from public.v_stock_productos', 'intruso: no ve stock');
+select is_empty('select * from public.movimientos_producto', 'intruso: no ve movimientos');
+select throws_ok(
+  $$select public.registrar_tanda('[{"producto_id":"00000000-0000-0000-0000-000000000000","cantidad":1}]')$$,
+  '42501', 'No tienes permiso para hacer esto.', 'intruso: no registra tandas'
+);
+select throws_ok(
+  $$select public.cambiar_estado(gen_random_uuid(), 'entregado')$$,
+  '42501', 'No tienes permiso para hacer esto.', 'intruso: no cambia estados'
+);
+select throws_ok(
+  $$select public.crear_pedido(gen_random_uuid(), '[]')$$,
+  '42501', 'No tienes permiso para hacer esto.', 'intruso: no crea pedidos'
 );
 -- Un update sin filas visibles no cambia nada.
 update public.config_precios set precio_docena = 1;

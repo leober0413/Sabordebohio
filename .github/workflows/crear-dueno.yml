@@ -1,0 +1,49 @@
+# Crea un dueño en producción (cuenta + perfil). No hay registro público
+# (FR-080), así que es la única forma de dar acceso. Manual.
+# La contraseña es temporal: el dueño la cambia en Ajustes → Cuenta.
+name: Crear dueño (producción)
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: Correo del dueño
+        required: true
+      nombre:
+        description: Nombre que se muestra en la app
+        required: true
+      password:
+        description: Contraseña temporal (mínimo 8 caracteres)
+        required: true
+
+jobs:
+  crear:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - name: Crear usuario y perfil
+        env:
+          URL: ${{ vars.VITE_SUPABASE_URL }}
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          EMAIL: ${{ inputs.email }}
+          NOMBRE: ${{ inputs.nombre }}
+          PASSWORD: ${{ inputs.password }}
+        run: |
+          echo "::add-mask::$PASSWORD"
+          test -n "$URL" && test -n "$SERVICE_KEY" || {
+            echo "::error::Faltan VITE_SUPABASE_URL o el secreto SUPABASE_SERVICE_ROLE_KEY."; exit 1; }
+          [ ${#PASSWORD} -ge 8 ] || { echo "::error::La contraseña debe tener al menos 8 caracteres."; exit 1; }
+
+          cuerpo=$(jq -n --arg e "$EMAIL" --arg p "$PASSWORD" '{email: $e, password: $p, email_confirm: true}')
+          respuesta=$(curl -sS -X POST "$URL/auth/v1/admin/users" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" \
+            -H "Content-Type: application/json" -d "$cuerpo")
+          id=$(echo "$respuesta" | jq -r '.id // empty')
+          [ -n "$id" ] || { echo "::error::No se pudo crear el usuario: $(echo "$respuesta" | jq -r '.msg // .message // .')"; exit 1; }
+
+          perfil=$(jq -n --arg id "$id" --arg n "$NOMBRE" '{id: $id, nombre: $n}')
+          curl -sS --fail-with-body -X POST "$URL/rest/v1/perfiles" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" \
+            -H "Content-Type: application/json" -H "Prefer: return=minimal" -d "$perfil"
+          echo "Dueño creado: $EMAIL ($NOMBRE)."

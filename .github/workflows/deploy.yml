@@ -1,18 +1,17 @@
-# Despliegue a producción (DEC-001 regla 5, DEC-005 regla 6).
-# Preparado en la Fase 0; se activa en la Fase 2 descomentando el disparador
-# `push` y cargando los secretos y variables del repositorio:
-#   Secrets: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, VERCEL_TOKEN
+# Despliegue a producción (DEC-001 regla 5, DEC-005 regla 6, DEC-002).
+# Corre en cada push a main: primero las migraciones, después el frontend.
+# Mientras falten secretos o variables, se salta sin fallar (ver
+# docs/despliegue.md). Las sesiones de Claude Code nunca tienen estas
+# credenciales.
+#   Secrets:   SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, VERCEL_TOKEN
 #   Variables: SUPABASE_PROJECT_REF, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY,
 #              VERCEL_ORG_ID, VERCEL_PROJECT_ID
-# vercel.json desactiva los despliegues automáticos de Vercel desde Git: solo
-# se publica desde aquí, después de aplicar las migraciones.
-# Las sesiones de Claude Code nunca tienen estas credenciales.
 name: Deploy
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-  # push:
-  #   branches: [main]
 
 concurrency:
   group: deploy-production
@@ -24,27 +23,54 @@ jobs:
     environment: production
     timeout-minutes: 15
     steps:
+      - name: Verificar configuración
+        id: verificar
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+        run: |
+          faltan=""
+          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD VERCEL_TOKEN SUPABASE_PROJECT_REF \
+                   VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            [ -n "${!v}" ] || faltan="$faltan $v"
+          done
+          if [ -n "$faltan" ]; then
+            echo "::notice::Despliegue omitido: faltan$faltan. Ver docs/despliegue.md."
+            echo "listo=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "listo=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v5
+        if: steps.verificar.outputs.listo == 'true'
 
       - uses: actions/setup-node@v5
+        if: steps.verificar.outputs.listo == 'true'
         with:
           node-version: 22
           cache: npm
 
       - run: npm ci
+        if: steps.verificar.outputs.listo == 'true'
 
       - name: Migraciones a producción
+        if: steps.verificar.outputs.listo == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           npx supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}"
+          # Nunca se aplica el seed de desarrollo en producción.
           npx supabase db push
-          # Fase 2: aplicar también la config de auth de config.toml
-          # (`supabase config push`) cuando site_url de producción esté
-          # parametrizado; hoy apunta a localhost.
 
-      - name: Build y publicar en Vercel (DEC-002)
+      - name: Build y publicar en Vercel
+        if: steps.verificar.outputs.listo == 'true'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}

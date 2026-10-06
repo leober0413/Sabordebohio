@@ -1,7 +1,7 @@
 # Project State — "Sabor de Bohío"
 
 **Última actualización:** 2026-10-06
-**Etapa:** BUILD — Fases 0 y 1 terminadas (pendientes de merge) → siguiente: **Fase 2**
+**Etapa:** BUILD — Fases 0, 1 y 2 con código terminado (PRs encadenados, pendientes de merge). Falta el **despliegue público** (pasos del dueño en `despliegue.md`) para empezar el uso real.
 
 ## Readiness
 
@@ -41,6 +41,9 @@
 
 ## Próximo paso
 
-Mergear los PR de las Fases 0 y 1 (en ese orden) y empezar la **Fase 2** (pedidos y "Hoy", primer uso real).
+1. Mergear los PR de las Fases 0, 1 y 2, en ese orden.
+2. Seguir `docs/despliegue.md` (cuentas de Supabase y Vercel, secretos en GitHub, crear los dos dueños).
+3. Empezar el uso real en paralelo con la memoria y medir el registro de pedidos (< 30 s, NFR-U-001).
+4. Luego las Fases 3 (pagos y fiado) y 4 (inventario y alertas), que son independientes entre sí.
 
 Recomendado en la configuración del entorno de la nube (DEC-005 regla 3): setup script con `npm ci` y `bash scripts/session-start.sh && npx supabase stop` para que las imágenes de Docker queden en caché.

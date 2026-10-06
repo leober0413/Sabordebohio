@@ -37,6 +37,8 @@ npm run test:e2e             # Playwright (build + preview en el puerto 4173)
 - Playwright usa el Chromium preinstalado vía `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium`. No ejecutes `playwright install`.
 - `.env.local` solo tiene llaves de Supabase local y no se sube a git (lo genera `scripts/write-env.sh`).
 - Cuentas del seed (solo local/CI, contraseña `bohio-local-123`): `leo@bohio.test` y `maria@bohio.test` son dueños; `intruso@bohio.test` no tiene perfil y no debe ver nada.
+- Ninguna función nueva es ejecutable por defecto (ni las de pgTAP): en las pruebas, `grant execute on all functions in schema pg_temp to authenticated;` para los ayudantes. Las funciones internas van en el esquema `privado`.
+- Despliegue: `docs/despliegue.md`. Nunca toques los workflows de producción para que usen credenciales desde la sesión.
 - Para simular un usuario en pgTAP: `select set_config('request.jwt.claims', '{"sub":"<uuid>","role":"authenticated"}', true); set local role authenticated;`.
 
 ## Reglas de Supabase (DEC-001, DEC-005), obligatorias

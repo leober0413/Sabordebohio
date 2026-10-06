@@ -68,6 +68,117 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"movimientos_producto": {
+                  Row: {
+                    "cantidad": number,"creado_en": string,"creado_por": string,"id": string,"motivo": string | null,"pedido_id": string | null,"producto_id": string,"tanda_id": string | null,"tipo": Database["public"]['Enums']["tipo_mov_producto"]
+                  }
+                  Insert: {
+                    "cantidad": number,"creado_en"?: string,"creado_por"?: string,"id"?: string,"motivo"?: string | null,"pedido_id"?: string | null,"producto_id": string,"tanda_id"?: string | null,"tipo": Database["public"]['Enums']["tipo_mov_producto"]
+                  }
+                  Update: {
+                    "cantidad"?: number,"creado_en"?: string,"creado_por"?: string,"id"?: string,"motivo"?: string | null,"pedido_id"?: string | null,"producto_id"?: string,"tanda_id"?: string | null,"tipo"?: Database["public"]['Enums']["tipo_mov_producto"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "movimientos_producto_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_producto_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "pedidos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_producto_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "v_pedidos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_producto_producto_id_fkey"
+      columns: ["producto_id"]
+isOneToOne: false
+      referencedRelation: "productos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_producto_producto_id_fkey"
+      columns: ["producto_id"]
+isOneToOne: false
+      referencedRelation: "v_stock_productos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_producto_tanda_id_fkey"
+      columns: ["tanda_id"]
+isOneToOne: false
+      referencedRelation: "tandas"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"pedido_lineas": {
+                  Row: {
+                    "cantidad": number,"creado_en": string,"id": string,"pedido_id": string,"producto_id": string
+                  }
+                  Insert: {
+                    "cantidad": number,"creado_en"?: string,"id"?: string,"pedido_id": string,"producto_id": string
+                  }
+                  Update: {
+                    "cantidad"?: number,"creado_en"?: string,"id"?: string,"pedido_id"?: string,"producto_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pedido_lineas_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "pedidos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pedido_lineas_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "v_pedidos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pedido_lineas_producto_id_fkey"
+      columns: ["producto_id"]
+isOneToOne: false
+      referencedRelation: "productos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pedido_lineas_producto_id_fkey"
+      columns: ["producto_id"]
+isOneToOne: false
+      referencedRelation: "v_stock_productos"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"pedidos": {
+                  Row: {
+                    "actualizado_en": string,"cliente_id": string,"costo_envio": number,"creado_en": string,"creado_por": string,"entregado_en": string | null,"estado": Database["public"]['Enums']["estado_pedido"],"fecha_entrega": string,"hora_entrega": string | null,"id": string,"notas": string | null,"precio_docena_aplicado": number,"precio_suelta_aplicado": number | null,"redondeo_aplicado": number,"subtotal": number,"tarifa": Database["public"]['Enums']["tarifa_aplicada"],"tipo_entrega": Database["public"]['Enums']["tipo_entrega"],"total": number,"unidades": number,"version": number
+                  }
+                  Insert: {
+                    "actualizado_en"?: string,"cliente_id": string,"costo_envio"?: number,"creado_en"?: string,"creado_por"?: string,"entregado_en"?: string | null,"estado"?: Database["public"]['Enums']["estado_pedido"],"fecha_entrega": string,"hora_entrega"?: string | null,"id"?: string,"notas"?: string | null,"precio_docena_aplicado": number,"precio_suelta_aplicado"?: number | null,"redondeo_aplicado": number,"subtotal": number,"tarifa": Database["public"]['Enums']["tarifa_aplicada"],"tipo_entrega"?: Database["public"]['Enums']["tipo_entrega"],"total": number,"unidades": number,"version"?: number
+                  }
+                  Update: {
+                    "actualizado_en"?: string,"cliente_id"?: string,"costo_envio"?: number,"creado_en"?: string,"creado_por"?: string,"entregado_en"?: string | null,"estado"?: Database["public"]['Enums']["estado_pedido"],"fecha_entrega"?: string,"hora_entrega"?: string | null,"id"?: string,"notas"?: string | null,"precio_docena_aplicado"?: number,"precio_suelta_aplicado"?: number | null,"redondeo_aplicado"?: number,"subtotal"?: number,"tarifa"?: Database["public"]['Enums']["tarifa_aplicada"],"tipo_entrega"?: Database["public"]['Enums']["tipo_entrega"],"total"?: number,"unidades"?: number,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pedidos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pedidos_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"perfiles": {
                   Row: {
                     "creado_en": string,"id": string,"nombre": string
@@ -94,23 +205,172 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"tandas": {
+                  Row: {
+                    "creado_en": string,"creado_por": string,"fecha": string,"id": string,"notas": string | null
+                  }
+                  Insert: {
+                    "creado_en"?: string,"creado_por"?: string,"fecha": string,"id"?: string,"notas"?: string | null
+                  }
+                  Update: {
+                    "creado_en"?: string,"creado_por"?: string,"fecha"?: string,"id"?: string,"notas"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "tandas_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
-            [_ in never]: never
+            "v_pedidos": {
+                  Row: {
+                    "actualizado_en": string | null,"atrasado": boolean | null,"cliente_id": string | null,"cliente_nombre": string | null,"cliente_telefono": string | null,"costo_envio": number | null,"creado_en": string | null,"creado_por": string | null,"entregado_en": string | null,"estado": Database["public"]['Enums']["estado_pedido"] | null,"fecha_entrega": string | null,"hora_entrega": string | null,"id": string | null,"lineas": Json | null,"notas": string | null,"precio_docena_aplicado": number | null,"precio_suelta_aplicado": number | null,"redondeo_aplicado": number | null,"subtotal": number | null,"tarifa": Database["public"]['Enums']["tarifa_aplicada"] | null,"tipo_entrega": Database["public"]['Enums']["tipo_entrega"] | null,"total": number | null,"unidades": number | null,"version": number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pedidos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pedidos_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "perfiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"v_stock_productos": {
+                  Row: {
+                    "activo": boolean | null,"bajo_minimo": boolean | null,"id": string | null,"negativo": boolean | null,"nombre": string | null,"orden": number | null,"stock": number | null,"stock_minimo": number | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                }
           }
           Functions: {
-            "calcular_precio":
+            "actualizar_pedido":
+{ Args: { "p_cliente_id": string,"p_costo_envio"?: number,"p_fecha_entrega": string,"p_hora_entrega"?: string,"p_id": string,"p_lineas": Json,"p_notas"?: string,"p_tipo_entrega"?: Database["public"]['Enums']["tipo_entrega"],"p_version": number }; Returns: {
+              "actualizado_en": string,
+"cliente_id": string,
+"costo_envio": number,
+"creado_en": string,
+"creado_por": string,
+"entregado_en": string | null,
+"estado": Database["public"]['Enums']["estado_pedido"],
+"fecha_entrega": string,
+"hora_entrega": string | null,
+"id": string,
+"notas": string | null,
+"precio_docena_aplicado": number,
+"precio_suelta_aplicado": number | null,
+"redondeo_aplicado": number,
+"subtotal": number,
+"tarifa": Database["public"]['Enums']["tarifa_aplicada"],
+"tipo_entrega": Database["public"]['Enums']["tipo_entrega"],
+"total": number,
+"unidades": number,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "pedidos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"calcular_precio":
 { Args: { "unidades": number }; Returns: {
               "precio_docena": number,"precio_suelta": number,"redondeo": number,"subtotal": number,"tarifa": Database["public"]['Enums']["tarifa_aplicada"]
             }[]
                            },
+"cambiar_estado":
+{ Args: { "p_estado": Database["public"]['Enums']["estado_pedido"],"p_hecho_al_momento"?: boolean,"p_id": string }; Returns: {
+              "actualizado_en": string,
+"cliente_id": string,
+"costo_envio": number,
+"creado_en": string,
+"creado_por": string,
+"entregado_en": string | null,
+"estado": Database["public"]['Enums']["estado_pedido"],
+"fecha_entrega": string,
+"hora_entrega": string | null,
+"id": string,
+"notas": string | null,
+"precio_docena_aplicado": number,
+"precio_suelta_aplicado": number | null,
+"redondeo_aplicado": number,
+"subtotal": number,
+"tarifa": Database["public"]['Enums']["tarifa_aplicada"],
+"tipo_entrega": Database["public"]['Enums']["tipo_entrega"],
+"total": number,
+"unidades": number,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "pedidos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"crear_pedido":
+{ Args: { "p_cliente_id": string,"p_costo_envio"?: number,"p_fecha_entrega"?: string,"p_hora_entrega"?: string,"p_lineas": Json,"p_notas"?: string,"p_tipo_entrega"?: Database["public"]['Enums']["tipo_entrega"] }; Returns: {
+              "actualizado_en": string,
+"cliente_id": string,
+"costo_envio": number,
+"creado_en": string,
+"creado_por": string,
+"entregado_en": string | null,
+"estado": Database["public"]['Enums']["estado_pedido"],
+"fecha_entrega": string,
+"hora_entrega": string | null,
+"id": string,
+"notas": string | null,
+"precio_docena_aplicado": number,
+"precio_suelta_aplicado": number | null,
+"redondeo_aplicado": number,
+"subtotal": number,
+"tarifa": Database["public"]['Enums']["tarifa_aplicada"],
+"tipo_entrega": Database["public"]['Enums']["tipo_entrega"],
+"total": number,
+"unidades": number,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "pedidos"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "es_dueno":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "exigir_dueno":
 { Args: Record<PropertyKey, never>; Returns: undefined
-                           }
+                           },
+"hoy":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"registrar_tanda":
+{ Args: { "p_fecha"?: string,"p_lineas": Json,"p_notas"?: string }; Returns: {
+              "creado_en": string,
+"creado_por": string,
+"fecha": string,
+"id": string,
+"notas": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "tandas"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
             "estado_pedido": "pendiente"|"listo"|"entregado"|"cancelado","metodo_pago": "efectivo"|"transferencia","tarifa_aplicada": "suelta"|"docena","tipo_entrega": "recoge"|"delivery","tipo_mov_ingrediente": "compra"|"ajuste"|"conteo","tipo_mov_producto": "tanda"|"entrega"|"reverso_entrega"|"hecho_al_momento"|"ajuste"
