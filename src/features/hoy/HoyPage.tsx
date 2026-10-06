@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 import { CargandoLista, ErrorCarga } from '@/components/Cargando'
 import { Button } from '@/components/ui/button'
-import { alertasStock, useStockProductos } from '@/features/inventario/queries'
+import { describirAlerta, useAlertasStock } from '@/features/inventario/queries'
 import { PedidoCard } from '@/features/pedidos/PedidoCard'
 import { usePedidosHoy } from '@/features/pedidos/queries'
 import { aPreparar, ordenarPorHora } from '@/features/pedidos/tipos'
@@ -12,13 +12,13 @@ import { formatFechaLarga, hoySD } from '@/lib/fechas'
 export function HoyPage() {
   const hoy = hoySD()
   const pedidos = usePedidosHoy()
-  const stock = useStockProductos()
+  const alertasStock = useAlertasStock()
 
   const todos = ordenarPorHora(pedidos.data ?? [])
   const atrasados = todos.filter((p) => p.atrasado)
   const deHoy = todos.filter((p) => !p.atrasado)
   const preparar = aPreparar(deHoy)
-  const alertas = alertasStock(stock.data)
+  const alertas = alertasStock.data ?? []
 
   return (
     <section className="flex flex-col gap-5">
@@ -47,7 +47,7 @@ export function HoyPage() {
               className="flex min-h-11 items-center gap-2 rounded-lg bg-warning px-3 py-2 text-sm font-medium text-warning-foreground"
             >
               <PackageMinus className="size-5 shrink-0" aria-hidden />
-              Stock bajo: {alertas.map((a) => `${a.nombre} (${a.stock})`).join(', ')}
+              Stock bajo: {alertas.map(describirAlerta).join(', ')}
             </Link>
           )}
         </div>
