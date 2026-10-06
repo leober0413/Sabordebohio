@@ -10,7 +10,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt': la app avisa y se actualiza al salir de ella, sin recargar
+      // mientras alguien llena un pedido (src/lib/actualizaciones.ts).
+      registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Sabor de Bohío',
