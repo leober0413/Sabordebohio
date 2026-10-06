@@ -5,6 +5,7 @@ import {
   aPedido,
   ETIQUETA_ESTADO,
   type EstadoPedido,
+  type PagoRapido,
   type Pedido,
   type TipoEntrega,
 } from '@/features/pedidos/tipos'
@@ -78,12 +79,16 @@ export interface DatosPedido {
   tipoEntrega: TipoEntrega
   costoEnvio: number
   notas: string | null
+  /** Solo al crear: pago inicial (FR-041). */
+  pago?: PagoRapido | null
 }
 
-function invalidar(queryClient: QueryClient) {
+export function invalidar(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: clavesPedidos.todos }),
     queryClient.invalidateQueries({ queryKey: ['stock'] }),
+    queryClient.invalidateQueries({ queryKey: ['pagos'] }),
+    queryClient.invalidateQueries({ queryKey: ['saldos'] }),
   ])
 }
 
@@ -99,6 +104,7 @@ export function useCrearPedido() {
         p_tipo_entrega: d.tipoEntrega,
         p_costo_envio: d.costoEnvio,
         p_notas: d.notas ?? undefined,
+        p_pago: d.pago ?? undefined,
       })
       if (error) throw error
       return data
@@ -135,6 +141,8 @@ interface CambioEstado {
   pedido: Pick<Pedido, 'id' | 'estado' | 'cliente_nombre'>
   estado: EstadoPedido
   hechoAlMomento?: boolean
+  /** Cobrar al entregar (FR-041). */
+  pago?: PagoRapido | null
   /** false en el propio "Deshacer", para no ofrecer deshacer lo deshecho. */
   conDeshacer?: boolean
 }
@@ -154,11 +162,12 @@ export function useCambiarEstado() {
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: async ({ pedido, estado, hechoAlMomento = false }: CambioEstado) => {
+    mutationFn: async ({ pedido, estado, hechoAlMomento = false, pago }: CambioEstado) => {
       const { data, error } = await supabase.rpc('cambiar_estado', {
         p_id: pedido.id,
         p_estado: estado,
         p_hecho_al_momento: hechoAlMomento,
+        p_pago: pago ?? undefined,
       })
       if (error) throw error
       return data
@@ -177,8 +186,14 @@ export function useCambiarEstado() {
       contexto?.anteriores.forEach(([clave, datos]) => queryClient.setQueryData(clave, datos))
       toast.error(mensajeError(error))
     },
-    onSuccess: (_data, { pedido, estado, hechoAlMomento, conDeshacer = true }) => {
-      const texto = `${pedido.cliente_nombre}: ${MENSAJE_ESTADO[estado]}${hechoAlMomento ? ' (hecho al momento)' : ''}`
+    onSuccess: (_data, { pedido, estado, hechoAlMomento, pago, conDeshacer = true }) => {
+      const texto = `${pedido.cliente_nombre}: ${MENSAJE_ESTADO[estado]}${hechoAlMomento ? ' (hecho al momento)' : ''}${pago ? ' y cobrado' : ''}`
+      // Deshacer una entrega cobrada anula también el cobro: se resuelve en el
+      // detalle (Pagos). Aquí solo se ofrece para cambios sin cobro.
+      if (pago) {
+        toast.success(texto)
+        return
+      }
       if (!conDeshacer) {
         toast(`Se deshizo: vuelve a ${ETIQUETA_ESTADO[pedido.estado].toLowerCase()}`)
         return
@@ -199,4 +214,22 @@ export function useCambiarEstado() {
   })
 
   return mutation
+}
+
+/** Historial de pedidos de un cliente, el más reciente primero (FR-012). */
+export function usePedidosCliente(clienteId: string) {
+  return useQuery({
+    queryKey: ['pedidos', 'cliente', clienteId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('v_pedidos')
+        .select('*')
+        .eq('cliente_id', clienteId)
+        .order('fecha_entrega', { ascending: false })
+        .order('creado_en', { ascending: false })
+        .limit(100)
+      if (error) throw error
+      return data.map(aPedido)
+    },
+  })
 }

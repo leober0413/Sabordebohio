@@ -4,6 +4,9 @@ import { AppLayout } from '@/app/AppLayout'
 import { NotFoundPage } from '@/app/NotFoundPage'
 import { AjustesPage } from '@/features/ajustes/AjustesPage'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { ClientePage } from '@/features/clientes/ClientePage'
+import { ClientesPage } from '@/features/clientes/ClientesPage'
+import { FiadoPage } from '@/features/clientes/FiadoPage'
 import { RequireDueno } from '@/features/auth/RequireDueno'
 import { HoyPage } from '@/features/hoy/HoyPage'
 import { InventarioPage } from '@/features/inventario/InventarioPage'
@@ -30,6 +33,9 @@ export const router = createBrowserRouter([
       { path: 'pedidos/:id/editar', element: <EditarPedidoPage /> },
       { path: 'inventario', element: <InventarioPage /> },
       { path: 'tandas/nueva', element: <TandaPage /> },
+      { path: 'fiado', element: <FiadoPage /> },
+      { path: 'clientes', element: <ClientesPage /> },
+      { path: 'clientes/:id', element: <ClientePage /> },
       { path: 'mas', element: <MasPage /> },
       { path: 'ajustes', element: <AjustesPage /> },
       { path: '*', element: <NotFoundPage /> },

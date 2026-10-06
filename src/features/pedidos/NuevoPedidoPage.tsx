@@ -27,6 +27,7 @@ export function NuevoPedidoPage() {
           config={config.data}
           textoGuardar="Guardar pedido"
           guardando={crear.isPending}
+          conPago
           onGuardar={(datos) =>
             crear.mutate(datos, {
               onSuccess: (pedido) => {
