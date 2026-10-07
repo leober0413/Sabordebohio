@@ -73,6 +73,8 @@ El botón **[+]** central abre un menú rápido: *Nuevo pedido* (principal) · *
 
 **Entregar pedido**: confirma, permite cobrar en el mismo paso y ofrece "Hecho al momento" (FR-026).
 
+**Detalle del pedido**: en el celular, el pedido, las acciones (entregar, listo, cancelar) y los pagos, uno debajo del otro. En PC (≥ 1024 px), dos columnas: el pedido y sus acciones a la izquierda, los pagos a la derecha (fijos al bajar).
+
 **Inventario**: pestañas *Catibías* / *Ingredientes*. Cada fila: nombre, stock, mínimo, barra o indicador de nivel. Las que están bajo mínimo van arriba. Tocar → historial de movimientos, ajustar, editar mínimo (FR-065).
 
 **Fiado**: clientes con saldo, ordenados por antigüedad; "Registrar abono".
