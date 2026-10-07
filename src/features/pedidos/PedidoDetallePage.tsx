@@ -19,7 +19,7 @@ export function PedidoDetallePage() {
   const pedido = usePedido(id)
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-4">
+    <section className="mx-auto flex max-w-3xl flex-col gap-4 lg:max-w-6xl">
       <PageHeader titulo="Pedido" atras>
         {pedido.data && (pedido.data.estado === 'pendiente' || pedido.data.estado === 'listo') && (
           <Button asChild variant="outline">
@@ -43,83 +43,89 @@ export function PedidoDetallePage() {
   )
 }
 
+// En PC: el pedido y sus acciones a la izquierda, los pagos a la derecha
+// (docs/ui-ux.md §4). En el celular, uno debajo del otro en el mismo orden.
 function Detalle({ pedido }: { pedido: Pedido }) {
   return (
-    <>
-      <Card>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div>
-              <Link
-                to={`/clientes/${pedido.cliente_id}`}
-                className="block text-xl font-semibold underline-offset-4 hover:underline"
-              >
-                {pedido.cliente_nombre}
-              </Link>
-              {pedido.cliente_telefono && (
-                <a
-                  href={`tel:${pedido.cliente_telefono}`}
-                  className="inline-flex min-h-11 items-center gap-1 text-sm text-primary underline-offset-4 hover:underline"
+    <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+      <div className="flex min-w-0 flex-col gap-4">
+        <Card>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <Link
+                  to={`/clientes/${pedido.cliente_id}`}
+                  className="block text-xl font-semibold underline-offset-4 hover:underline"
                 >
-                  <Phone className="size-4" aria-hidden />
-                  {pedido.cliente_telefono}
-                </a>
-              )}
+                  {pedido.cliente_nombre}
+                </Link>
+                {pedido.cliente_telefono && (
+                  <a
+                    href={`tel:${pedido.cliente_telefono}`}
+                    className="inline-flex min-h-11 items-center gap-1 text-sm text-primary underline-offset-4 hover:underline"
+                  >
+                    <Phone className="size-4" aria-hidden />
+                    {pedido.cliente_telefono}
+                  </a>
+                )}
+              </div>
+              <EstadoBadge estado={pedido.estado} atrasado={pedido.atrasado} />
             </div>
-            <EstadoBadge estado={pedido.estado} atrasado={pedido.atrasado} />
-          </div>
 
-          <ul className="flex flex-col divide-y rounded-lg border">
-            {pedido.lineas.map((l) => (
-              <li key={l.producto_id} className="flex justify-between px-3 py-2">
-                <span>{l.nombre}</span>
-                <span className="font-semibold tabular">{l.cantidad}</span>
-              </li>
-            ))}
-          </ul>
+            <ul className="flex flex-col divide-y rounded-lg border">
+              {pedido.lineas.map((l) => (
+                <li key={l.producto_id} className="flex justify-between px-3 py-2">
+                  <span>{l.nombre}</span>
+                  <span className="font-semibold tabular">{l.cantidad}</span>
+                </li>
+              ))}
+            </ul>
 
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-            <dt className="text-muted-foreground">
-              {pedido.tarifa === 'docena' ? 'Precio de docena' : 'Precio suelta'} ·{' '}
-              {pedido.unidades} uds.
-            </dt>
-            <dd className="text-right tabular">{formatDinero(pedido.subtotal)}</dd>
-            {pedido.costo_envio > 0 && (
-              <>
-                <dt className="text-muted-foreground">Envío</dt>
-                <dd className="text-right tabular">{formatDinero(pedido.costo_envio)}</dd>
-              </>
-            )}
-            <dt className="font-semibold">Total</dt>
-            <dd className="text-right text-lg font-bold tabular">{formatDinero(pedido.total)}</dd>
-          </dl>
-
-          <ul className="flex flex-col gap-2 text-sm">
-            <li className="flex items-center gap-2">
-              <CalendarDays className="size-4 text-muted-foreground" aria-hidden />
-              {formatFechaRelativa(pedido.fecha_entrega)}
-              {pedido.hora_entrega ? ` · ${formatHora(pedido.hora_entrega)}` : ' · sin hora'}
-            </li>
-            <li className="flex items-center gap-2">
-              {pedido.tipo_entrega === 'delivery' ? (
-                <Bike className="size-4 text-muted-foreground" aria-hidden />
-              ) : (
-                <Store className="size-4 text-muted-foreground" aria-hidden />
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+              <dt className="text-muted-foreground">
+                {pedido.tarifa === 'docena' ? 'Precio de docena' : 'Precio suelta'} ·{' '}
+                {pedido.unidades} uds.
+              </dt>
+              <dd className="text-right tabular">{formatDinero(pedido.subtotal)}</dd>
+              {pedido.costo_envio > 0 && (
+                <>
+                  <dt className="text-muted-foreground">Envío</dt>
+                  <dd className="text-right tabular">{formatDinero(pedido.costo_envio)}</dd>
+                </>
               )}
-              {pedido.tipo_entrega === 'delivery' ? 'Delivery' : 'Recoge'}
-            </li>
-            {pedido.notas && (
-              <li className="flex items-start gap-2">
-                <StickyNote className="mt-0.5 size-4 text-muted-foreground" aria-hidden />
-                {pedido.notas}
+              <dt className="font-semibold">Total</dt>
+              <dd className="text-right text-lg font-bold tabular">{formatDinero(pedido.total)}</dd>
+            </dl>
+
+            <ul className="flex flex-col gap-2 text-sm">
+              <li className="flex items-center gap-2">
+                <CalendarDays className="size-4 text-muted-foreground" aria-hidden />
+                {formatFechaRelativa(pedido.fecha_entrega)}
+                {pedido.hora_entrega ? ` · ${formatHora(pedido.hora_entrega)}` : ' · sin hora'}
               </li>
-            )}
-          </ul>
-        </CardContent>
-      </Card>
-      <Acciones pedido={pedido} />
-      <PagosPedido pedido={pedido} />
-    </>
+              <li className="flex items-center gap-2">
+                {pedido.tipo_entrega === 'delivery' ? (
+                  <Bike className="size-4 text-muted-foreground" aria-hidden />
+                ) : (
+                  <Store className="size-4 text-muted-foreground" aria-hidden />
+                )}
+                {pedido.tipo_entrega === 'delivery' ? 'Delivery' : 'Recoge'}
+              </li>
+              {pedido.notas && (
+                <li className="flex items-start gap-2">
+                  <StickyNote className="mt-0.5 size-4 text-muted-foreground" aria-hidden />
+                  {pedido.notas}
+                </li>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+        <Acciones pedido={pedido} />
+      </div>
+      <div className="min-w-0 lg:sticky lg:top-8">
+        <PagosPedido pedido={pedido} />
+      </div>
+    </div>
   )
 }
 
