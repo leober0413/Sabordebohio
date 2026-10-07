@@ -9,7 +9,9 @@ test('sin sesión, la app manda al login', async ({ page }) => {
 
 test('credenciales incorrectas muestran un error en español', async ({ page }) => {
   await entrar(page, { email: 'leo@bohio.test', password: 'equivocada' })
-  await expect(page.getByRole('alert')).toHaveText('Correo o contraseña incorrectos.')
+  await expect(page.getByRole('alert')).toHaveText(
+    'Correo o contraseña incorrectos. Revisa mayúsculas y signos de la contraseña.',
+  )
 })
 
 test('el dueño entra y la sesión se mantiene al recargar (FR-080, FR-081)', async ({ page }) => {
@@ -20,6 +22,21 @@ test('el dueño entra y la sesión se mantiene al recargar (FR-080, FR-081)', as
   await page.goto('/ajustes')
   await page.getByRole('button', { name: 'Cerrar sesión' }).click()
   await expect(page).toHaveURL(/\/login$/)
+})
+
+test('el correo con espacios o mayúsculas entra igual; la contraseña se puede ver', async ({
+  page,
+}) => {
+  await page.goto('/login')
+  await page.getByLabel('Correo').fill('  Leo@Bohio.test ')
+  const clave = page.getByLabel('Contraseña', { exact: true })
+  await clave.fill(DUENO.password)
+  await expect(clave).toHaveAttribute('type', 'password')
+  await page.getByRole('button', { name: 'Mostrar contraseña' }).click()
+  await expect(clave).toHaveAttribute('type', 'text')
+  await expect(page.getByRole('button', { name: 'Ocultar contraseña' })).toBeVisible()
+  await page.getByRole('button', { name: 'Entrar' }).click()
+  await expect(page.getByRole('heading', { name: 'Hoy', exact: true })).toBeVisible()
 })
 
 test('un usuario que no es dueño no ve nada (FR-080)', async ({ page }) => {

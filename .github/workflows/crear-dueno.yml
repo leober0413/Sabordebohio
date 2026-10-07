@@ -23,15 +23,18 @@ jobs:
     environment: production
     timeout-minutes: 5
     steps:
+      # El correo y la contraseña se leen del evento y se ocultan antes de
+      # usarlos: pasados por env: se imprimen en el log, y este repo es público.
       - name: Crear usuario y perfil
         env:
           URL: ${{ vars.VITE_SUPABASE_URL }}
           SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          EMAIL: ${{ inputs.email }}
-          NOMBRE: ${{ inputs.nombre }}
-          PASSWORD: ${{ inputs.password }}
         run: |
+          EMAIL=$(jq -r '.inputs.email' "$GITHUB_EVENT_PATH" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+          PASSWORD=$(jq -r '.inputs.password' "$GITHUB_EVENT_PATH")
+          NOMBRE=$(jq -r '.inputs.nombre' "$GITHUB_EVENT_PATH")
           echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$EMAIL"
           test -n "$URL" && test -n "$SERVICE_KEY" || {
             echo "::error::Faltan VITE_SUPABASE_URL o el secreto SUPABASE_SERVICE_ROLE_KEY."; exit 1; }
           [ ${#PASSWORD} -ge 8 ] || { echo "::error::La contraseña debe tener al menos 8 caracteres."; exit 1; }
@@ -47,4 +50,4 @@ jobs:
           curl -sS --fail-with-body -X POST "$URL/rest/v1/perfiles" \
             -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" \
             -H "Content-Type: application/json" -H "Prefer: return=minimal" -d "$perfil"
-          echo "Dueño creado: $EMAIL ($NOMBRE)."
+          echo "Dueño creado: $NOMBRE."

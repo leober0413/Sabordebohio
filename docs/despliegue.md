@@ -11,6 +11,7 @@ Producción se publica **solo desde GitHub Actions** (DEC-001, DEC-005). Las ses
 | `deploy.yml` | Cada push a `main` (y manual) | `supabase db push` (migraciones) → build → publica en Vercel. Si falta algún secreto o variable, **se salta sin fallar** y lo avisa. |
 | `config-auth.yml` | Manual, una vez (y si cambia la config de auth) | Aplica `supabase/config.toml` a producción con la URL real: registro público desactivado (FR-080), URL del sitio y largo mínimo de contraseña. |
 | `crear-dueno.yml` | Manual, una vez por dueño | Crea la cuenta y el perfil de un dueño con una contraseña temporal (marcada en `user_metadata.clave_temporal`). |
+| `restablecer-clave.yml` | Manual, cuando un dueño no puede entrar | Le pone una contraseña temporal nueva; al entrar, la app le pide cambiarla. |
 | `backup.yml` | Todos los días a las 5:17 a. m. (y manual) | Copia de seguridad cifrada de la base (esquema + datos + cuentas), guardada 30 días. Ver "Copias de seguridad". |
 
 ## Pasos
@@ -52,6 +53,13 @@ En el repo: **Settings → Environments → New environment** `production`. Dent
 3. **Actions → Crear dueño (producción) → Run workflow**, una vez por dueño: correo, nombre y contraseña temporal.
 4. Cada dueño entra a `SITE_URL` con la contraseña temporal. La app lo guía paso a paso para cambiarla (puede posponerlo con "Ahora no"; se lo vuelve a pedir al abrir la app). También se cambia en **Ajustes → Cuenta**. Desde el celular, la instala (Chrome: menú → "Instalar app"; iPhone: Safari → Compartir → "Agregar a inicio").
 5. En **Ajustes → Lista de precios**, pongan el precio suelta y revisen la docena (la base nace con docena RD$550, mínimo 6 y suelta sin definir).
+
+## Si un dueño no puede entrar
+
+1. Que revise el correo y la contraseña con el botón del ojo ("Mostrar contraseña"): mayúsculas, signos y que no sobren espacios. Los espacios y las mayúsculas del correo ya no importan.
+2. Si no la recuerda o la temporal no funciona: **Actions → Restablecer contraseña de un dueño (producción) → Run workflow** con su correo y una contraseña temporal nueva. Al entrar, la app le pide cambiarla.
+
+**El repo es público, y los logs de Actions también.** `crear-dueno.yml` y `restablecer-clave.yml` leen el correo y la contraseña del evento y los ocultan antes de usarlos; nunca pases datos sensibles por `env:` en un workflow (se imprimen en el log).
 
 ## Después
 - Cada merge a `main` aplica las migraciones nuevas y publica la app.

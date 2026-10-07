@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LogIn } from 'lucide-react'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useLocation } from 'react-router'
@@ -17,6 +17,7 @@ export function LoginPage() {
   const session = useSession()
   const location = useLocation()
   const [errorLogin, setErrorLogin] = useState<string | null>(null)
+  const [verClave, setVerClave] = useState(false)
   const {
     register,
     handleSubmit,
@@ -34,7 +35,7 @@ export function LoginPage() {
     if (error) {
       setErrorLogin(
         error.code === 'invalid_credentials'
-          ? 'Correo o contraseña incorrectos.'
+          ? 'Correo o contraseña incorrectos. Revisa mayúsculas y signos de la contraseña.'
           : mensajeError(error),
       )
     }
@@ -56,6 +57,9 @@ export function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               inputMode="email"
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? 'email-error' : undefined}
@@ -65,14 +69,31 @@ export function LoginPage() {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              aria-invalid={!!errors.password}
-              aria-describedby={errors.password ? 'password-error' : undefined}
-              {...register('password')}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={verClave ? 'text' : 'password'}
+                autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                className="pr-12"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                {...register('password')}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute top-0 right-0 size-11"
+                aria-label={verClave ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-pressed={verClave}
+                onClick={() => setVerClave((v) => !v)}
+              >
+                {verClave ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+              </Button>
+            </div>
             <FieldError id="password-error" message={errors.password?.message} />
           </div>
 
