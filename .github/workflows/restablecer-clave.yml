@@ -1,0 +1,53 @@
+# Pone una contraseña temporal nueva a un dueño que no puede entrar (la olvidó
+# o la temporal no funciona). Manual. La cuenta vuelve a quedar con
+# user_metadata.clave_temporal, así que al entrar la app lo guía para cambiarla.
+# El correo y la contraseña se leen del evento y se ocultan antes de usarlos
+# (este repo es público y el log se ve).
+name: Restablecer contraseña de un dueño (producción)
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: Correo del dueño
+        required: true
+      password:
+        description: Contraseña temporal nueva (mínimo 8 caracteres)
+        required: true
+
+jobs:
+  restablecer:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - name: Poner contraseña temporal
+        env:
+          URL: ${{ vars.VITE_SUPABASE_URL }}
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          EMAIL=$(jq -r '.inputs.email' "$GITHUB_EVENT_PATH" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+          PASSWORD=$(jq -r '.inputs.password' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$EMAIL"
+          test -n "$URL" && test -n "$SERVICE_KEY" || {
+            echo "::error::Faltan VITE_SUPABASE_URL o el secreto SUPABASE_SERVICE_ROLE_KEY."; exit 1; }
+          [ ${#PASSWORD} -ge 8 ] || { echo "::error::La contraseña debe tener al menos 8 caracteres."; exit 1; }
+
+          usuarios=$(curl -sS --fail-with-body "$URL/auth/v1/admin/users?per_page=1000" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY")
+          id=$(echo "$usuarios" | jq -r --arg e "$EMAIL" '.users[] | select((.email | ascii_downcase) == $e) | .id' | head -n 1)
+          [ -n "$id" ] || { echo "::error::No hay ninguna cuenta con ese correo. Revisa cómo lo escribiste."; exit 1; }
+
+          perfil=$(curl -sS --fail-with-body "$URL/rest/v1/perfiles?id=eq.$id&select=nombre" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY")
+          nombre=$(echo "$perfil" | jq -r '.[0].nombre // empty')
+          [ -n "$nombre" ] || { echo "::error::Esa cuenta no es de un dueño (no tiene perfil)."; exit 1; }
+
+          cuerpo=$(jq -n --arg p "$PASSWORD" '{password: $p, user_metadata: {clave_temporal: true}}')
+          respuesta=$(curl -sS -X PUT "$URL/auth/v1/admin/users/$id" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" \
+            -H "Content-Type: application/json" -d "$cuerpo")
+          [ "$(echo "$respuesta" | jq -r '.id // empty')" = "$id" ] || {
+            echo "::error::No se pudo cambiar la contraseña: $(echo "$respuesta" | jq -r '.msg // .message // .')"; exit 1; }
+          echo "Contraseña temporal nueva para $nombre. Al entrar, la app le pedirá cambiarla."

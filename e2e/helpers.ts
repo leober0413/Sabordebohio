@@ -7,7 +7,7 @@ export const INTRUSO = { email: 'intruso@bohio.test', password: 'bohio-local-123
 export async function entrar(page: Page, cuenta: { email: string; password: string }) {
   await page.goto('/login')
   await page.getByLabel('Correo').fill(cuenta.email)
-  await page.getByLabel('Contraseña').fill(cuenta.password)
+  await page.getByLabel('Contraseña', { exact: true }).fill(cuenta.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
 }
 
