@@ -13,6 +13,7 @@ Producción se publica **solo desde GitHub Actions** (DEC-001, DEC-005). Las ses
 | `crear-dueno.yml` | Manual, una vez por dueño | Crea la cuenta y el perfil de un dueño con una contraseña temporal (marcada en `user_metadata.clave_temporal`). |
 | `restablecer-clave.yml` | Manual, cuando un dueño no puede entrar | Le pone una contraseña temporal nueva; al entrar, la app le pide cambiarla. |
 | `backup.yml` | Todos los días a las 5:17 a. m. (y manual) | Copia de seguridad cifrada de la base (esquema + datos + cuentas), guardada 30 días. Ver "Copias de seguridad". |
+| `estado.yml` | Todos los días a las 8:07 a. m. (y manual) | Comprueba que el login y la base respondan y mantiene el proyecto activo (el plan gratuito lo pausa tras una semana sin uso). Solo usa la URL y la llave anon. Si falla, GitHub avisa por correo. |
 
 ## Pasos
 
@@ -22,7 +23,7 @@ Producción se publica **solo desde GitHub Actions** (DEC-001, DEC-005). Las ses
    - **Project ref**: el código de 20 letras de la URL del proyecto.
    - **Project URL**: `https://<ref>.supabase.co`.
    - **anon key** y **service_role key** (Project Settings → API). La anon key es pública; la service_role **no se comparte nunca**.
-3. Crea un **access token** personal (Account → Access Tokens).
+3. Crea un **access token** personal en `supabase.com/dashboard/account/tokens` (Account → Access Tokens). Desde octubre de 2026 los tokens nuevos son *scoped* por defecto; para la CLI lo más simple es **Create legacy token** (acceso como antes). Elige el **vencimiento más largo** y anota la fecha: cuando vence, `deploy.yml`, `backup.yml` y `config-auth.yml` fallan con "Invalid access token" y hay que crear otro y cambiar el secreto `SUPABASE_ACCESS_TOKEN`. Desde el celular, si no ves los botones, en Safari usa **aA → Solicitar sitio web de escritorio**.
 4. Verifica qué copias de seguridad incluye el plan (NFR-R-002, ver `database.md`).
 
 ### 2. Vercel (la página)
@@ -53,6 +54,12 @@ En el repo: **Settings → Environments → New environment** `production`. Dent
 3. **Actions → Crear dueño (producción) → Run workflow**, una vez por dueño: correo, nombre y contraseña temporal.
 4. Cada dueño entra a `SITE_URL` con la contraseña temporal. La app lo guía paso a paso para cambiarla (puede posponerlo con "Ahora no"; se lo vuelve a pedir al abrir la app). También se cambia en **Ajustes → Cuenta**. Desde el celular, la instala (Chrome: menú → "Instalar app"; iPhone: Safari → Compartir → "Agregar a inicio").
 5. En **Ajustes → Lista de precios**, pongan el precio suelta y revisen la docena (la base nace con docena RD$550, mínimo 6 y suelta sin definir).
+
+## Si la app dice "No pudimos conectar con el servidor" o "Algo salió mal" al entrar
+
+1. **Actions → Estado de la app → Run workflow.** Si sale en verde, el servidor está bien (revisa el internet del equipo).
+2. Si sale en rojo, entra a supabase.com/dashboard: si el proyecto dice **Paused**, toca **Restore project** y espera unos minutos. Luego vuelve a correr "Estado de la app".
+3. Revisa también que **Copia de seguridad** esté en verde: si falla con "Invalid access token", el token venció (ver el paso 3 de Supabase).
 
 ## Si un dueño no puede entrar
 

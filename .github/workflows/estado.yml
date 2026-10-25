@@ -1,0 +1,50 @@
+# Estado de producción: comprueba cada día que el login y la base respondan.
+# También mantiene el proyecto activo: el plan gratuito de Supabase lo pausa
+# tras una semana sin actividad, y entonces nadie puede entrar a la app.
+# Si falla, GitHub avisa por correo. Manual: Actions → Estado de la app → Run workflow.
+# Solo usa la URL y la llave anon (públicas: van en la app); no necesita secretos.
+name: Estado de la app
+
+on:
+  schedule:
+    # 12:07 UTC = 8:07 a. m. en Santo Domingo.
+    - cron: '7 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  estado:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - name: Comprobar login y base de datos
+        env:
+          URL: ${{ vars.VITE_SUPABASE_URL }}
+          ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          test -n "$URL" && test -n "$ANON_KEY" || {
+            echo "::error::Faltan las variables VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY."; exit 1; }
+
+          probar() { # nombre, ruta, códigos válidos
+            rm -f /tmp/respuesta
+            codigo=$(curl -sS -m 30 -o /tmp/respuesta -w '%{http_code}' "$URL$2" \
+              -H "apikey: $ANON_KEY" -H "Authorization: Bearer $ANON_KEY") || codigo=000
+            if grep -qx "$codigo" <<< "$(tr ' ' '\n' <<< "$3")"; then
+              echo "✓ $1 responde."
+            else
+              echo "::error::$1 no responde (HTTP $codigo): $(head -c 300 /tmp/respuesta 2>/dev/null)"
+              return 1
+            fi
+          }
+
+          fallo=0
+          probar "Login (auth)" "/auth/v1/health" "200" || fallo=1
+          # Sin sesión la base niega el acceso (401, código 42501): que lo niegue
+          # prueba que Postgres respondió, y la consulta cuenta como actividad.
+          probar "Base de datos (API)" "/rest/v1/productos?select=id&limit=1" "200 401" || fallo=1
+
+          if [ "$fallo" = 1 ]; then
+            echo "::error::La app no puede conectarse a Supabase. Si el proyecto está pausado, restáuralo en supabase.com/dashboard (botón «Restore project») y vuelve a correr este workflow."
+            exit 1
+          fi
+          echo "Todo bien: la app puede entrar y leer datos."
