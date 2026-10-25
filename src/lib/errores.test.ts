@@ -21,8 +21,16 @@ describe('mensajeError', () => {
     expect(mensajeError(new Error('Something exploded'))).toBe(
       'Algo salió mal. Inténtalo de nuevo.',
     )
-    expect(mensajeError(new TypeError('Failed to fetch'))).toBe(
-      'No hay conexión. Revisa el internet e inténtalo de nuevo.',
-    )
+  })
+
+  it('sin conexión al servidor, en cualquier navegador', () => {
+    const conexion = 'No pudimos conectar con el servidor. Revisa el internet e inténtalo de nuevo.'
+    expect(mensajeError(new TypeError('Failed to fetch'))).toBe(conexion) // Chrome
+    expect(mensajeError(new TypeError('Load failed'))).toBe(conexion) // Safari
+    expect(mensajeError(new TypeError('NetworkError when attempting to fetch resource.'))).toBe(
+      conexion,
+    ) // Firefox
+    const auth = Object.assign(new Error('Load failed'), { name: 'AuthRetryableFetchError' })
+    expect(mensajeError(auth)).toBe(conexion)
   })
 })
