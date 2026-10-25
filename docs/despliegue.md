@@ -23,7 +23,7 @@ Producción se publica **solo desde GitHub Actions** (DEC-001, DEC-005). Las ses
    - **Project ref**: el código de 20 letras de la URL del proyecto.
    - **Project URL**: `https://<ref>.supabase.co`.
    - **anon key** y **service_role key** (Project Settings → API). La anon key es pública; la service_role **no se comparte nunca**.
-3. Crea un **access token** personal (Account → Access Tokens) **sin vencimiento** ("Never"). Si vence, `deploy.yml`, `backup.yml` y `config-auth.yml` fallan con "Invalid access token" y hay que crear otro y cambiar el secreto `SUPABASE_ACCESS_TOKEN`.
+3. Crea un **access token** personal en `supabase.com/dashboard/account/tokens` (Account → Access Tokens). Desde octubre de 2026 los tokens nuevos son *scoped* por defecto; para la CLI lo más simple es **Create legacy token** (acceso como antes). Elige el **vencimiento más largo** y anota la fecha: cuando vence, `deploy.yml`, `backup.yml` y `config-auth.yml` fallan con "Invalid access token" y hay que crear otro y cambiar el secreto `SUPABASE_ACCESS_TOKEN`. Desde el celular, si no ves los botones, en Safari usa **aA → Solicitar sitio web de escritorio**.
 4. Verifica qué copias de seguridad incluye el plan (NFR-R-002, ver `database.md`).
 
 ### 2. Vercel (la página)
