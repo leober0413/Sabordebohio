@@ -88,13 +88,13 @@ isOneToOne: false
                   ]
                 },"clientes": {
                   Row: {
-                    "activo": boolean,"creado_en": string,"id": string,"nombre": string,"notas": string | null,"telefono": string | null
+                    "activo": boolean,"creado_en": string,"id": string,"nombre": string,"notas": string | null,"telefono": string | null,"telefono_digitos": string | null
                   }
                   Insert: {
-                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre": string,"notas"?: string | null,"telefono"?: string | null
+                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre": string,"notas"?: string | null,"telefono"?: string | null,"telefono_digitos"?: never
                   }
                   Update: {
-                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre"?: string,"notas"?: string | null,"telefono"?: string | null
+                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre"?: string,"notas"?: string | null,"telefono"?: string | null,"telefono_digitos"?: never
                   }
                   Relationships: [
                     

@@ -1,11 +1,16 @@
-import { Phone, Search, UserPlus, X } from 'lucide-react'
+import { Phone, Search, TriangleAlert, UserCheck, UserPlus, X } from 'lucide-react'
 import { useId, useState, type FormEvent } from 'react'
 
 import { FieldError } from '@/components/FieldError'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useBuscarClientes, useCliente, useCrearCliente } from '@/features/clientes/queries'
+import {
+  useBuscarClientes,
+  useCliente,
+  useClientePorTelefono,
+  useCrearCliente,
+} from '@/features/clientes/queries'
 
 interface Props {
   value: string
@@ -133,9 +138,12 @@ function NuevoCliente({
   const [nombre, setNombre] = useState(/\d/.test(nombreInicial) ? '' : nombreInicial)
   const [telefono, setTelefono] = useState(/\d/.test(nombreInicial) ? nombreInicial : '')
   const [error, setError] = useState<string>()
+  // FR-013: si el número ya es de un cliente, se ofrece ese en vez de duplicarlo.
+  const existente = useClientePorTelefono(telefono).data
 
   const guardar = (e: FormEvent | React.MouseEvent) => {
     e.preventDefault()
+    if (existente) return
     if (!nombre.trim()) return setError('Escribe el nombre del cliente.')
     setError(undefined)
     crear.mutate(
@@ -171,13 +179,38 @@ function NuevoCliente({
           onChange={(e) => setTelefono(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && guardar(e)}
           autoComplete="off"
+          aria-describedby={existente ? 'nuevo-cliente-existente' : undefined}
         />
       </div>
+      {existente && (
+        <div
+          id="nuevo-cliente-existente"
+          role="status"
+          className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3"
+        >
+          <p className="flex items-start gap-2 text-sm">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <span>
+              Ese teléfono ya es de <strong>{existente.nombre}</strong>
+              {existente.telefono ? ` (${existente.telefono})` : ''}.
+            </span>
+          </p>
+          <Button type="button" variant="outline" onClick={() => onCreado(existente.id)}>
+            <UserCheck aria-hidden />
+            Usar a {existente.nombre}
+          </Button>
+        </div>
+      )}
       <div className="flex gap-2">
         <Button type="button" variant="ghost" className="flex-1" onClick={onCancelar}>
           Cancelar
         </Button>
-        <Button type="button" className="flex-1" onClick={guardar} disabled={crear.isPending}>
+        <Button
+          type="button"
+          className="flex-1"
+          onClick={guardar}
+          disabled={crear.isPending || !!existente}
+        >
           Crear cliente
         </Button>
       </div>

@@ -67,6 +67,26 @@ describe('PedidoForm', () => {
     expect(screen.getByText('RD$250.00')).toBeInTheDocument()
   })
 
+  it('+12 suma una docena de un toque y dice cuántas docenas van', async () => {
+    const user = userEvent.setup()
+    const onGuardar = renderForm()
+    await user.click(screen.getByRole('button', { name: 'Agregar una docena de Pollo' }))
+    expect(screen.getByRole('textbox', { name: 'Cantidad de Pollo' })).toHaveValue('12')
+    expect(screen.getByText('1 docena')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Agregar una docena de Pollo' }))
+    await user.click(screen.getByRole('button', { name: 'Agregar una de Pollo' }))
+    expect(screen.getByText('2 docenas y 1')).toBeInTheDocument()
+    expect(screen.getByText(/Precio de docena · 25 ×/)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Guardar pedido' }))
+    await waitFor(() =>
+      expect(onGuardar).toHaveBeenCalledWith(
+        expect.objectContaining({ lineas: [{ producto_id: 'pollo', cantidad: 25 }] }),
+      ),
+    )
+  })
+
   it('envía las líneas, hoy por defecto y el envío solo con delivery', async () => {
     const user = userEvent.setup()
     const onGuardar = renderForm()
