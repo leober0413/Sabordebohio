@@ -10,11 +10,21 @@ interface StepperProps {
   label: string
   min?: number
   max?: number
+  /** Muestra "+12" para sumar una docena de un toque (pedidos y tandas). */
+  conDocena?: boolean
   className?: string
 }
 
 /** Cantidad con − / + grandes en vez de teclear (docs/ui-ux.md §1.3). */
-export function Stepper({ value, onChange, label, min = 0, max = 999, className }: StepperProps) {
+export function Stepper({
+  value,
+  onChange,
+  label,
+  min = 0,
+  max = 999,
+  conDocena = false,
+  className,
+}: StepperProps) {
   const fijar = (n: number) => onChange(Math.min(max, Math.max(min, n)))
   return (
     <div className={cn('flex items-center gap-1', className)}>
@@ -49,6 +59,19 @@ export function Stepper({ value, onChange, label, min = 0, max = 999, className 
       >
         <Plus aria-hidden />
       </Button>
+      {conDocena && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon"
+          aria-label={`Agregar una docena de ${label}`}
+          disabled={value >= max}
+          onClick={() => fijar(value + 12)}
+          className="font-semibold tabular"
+        >
+          +12
+        </Button>
+      )}
     </div>
   )
 }

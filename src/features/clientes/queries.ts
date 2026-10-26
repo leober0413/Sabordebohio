@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 
 import { mensajeError } from '@/lib/errores'
 import { supabase } from '@/lib/supabase'
+import { digitosTelefono } from '@/lib/telefono'
 import type { Database } from '@/types/database'
 
 export type Cliente = Database['public']['Tables']['clientes']['Row']
@@ -12,19 +13,26 @@ function limpiar(texto: string) {
   return texto.replace(/[%,()*\\]/g, ' ').trim()
 }
 
-/** FR-011: sugerencias por nombre o teléfono que contengan el texto. */
+/**
+ * FR-011: sugerencias por nombre o teléfono que contengan el texto. El
+ * teléfono también se busca por sus dígitos (FR-013): "8095550101" encuentra
+ * "809-555-0101".
+ */
 export function useBuscarClientes(texto: string) {
   const q = limpiar(texto)
+  const digitos = digitosTelefono(q)
   return useQuery({
     queryKey: ['clientes', 'buscar', q],
     enabled: q.length > 0,
     staleTime: 10_000,
     queryFn: async () => {
+      const filtros = [`nombre.ilike.%${q}%`, `telefono.ilike.%${q}%`]
+      if (digitos.length >= 3) filtros.push(`telefono_digitos.like.%${digitos}%`)
       const { data, error } = await supabase
         .from('clientes')
         .select('*')
         .eq('activo', true)
-        .or(`nombre.ilike.%${q}%,telefono.ilike.%${q}%`)
+        .or(filtros.join(','))
         .order('nombre')
         .limit(6)
       if (error) throw error
@@ -39,6 +47,31 @@ export function useCliente(id: string | undefined) {
     enabled: !!id,
     queryFn: async () => {
       const { data, error } = await supabase.from('clientes').select('*').eq('id', id!).single()
+      if (error) throw error
+      return data
+    },
+  })
+}
+
+/**
+ * FR-013: el cliente activo que ya tiene ese número, para ofrecerlo antes de
+ * crear otro. Busca con el número completo (7 dígitos o más).
+ */
+export function useClientePorTelefono(telefono: string) {
+  const digitos = digitosTelefono(telefono)
+  return useQuery({
+    queryKey: ['clientes', 'telefono', digitos],
+    enabled: digitos.length >= 7,
+    staleTime: 10_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('activo', true)
+        .eq('telefono_digitos', digitos)
+        .order('creado_en')
+        .limit(1)
+        .maybeSingle()
       if (error) throw error
       return data
     },
@@ -63,6 +96,6 @@ export function useCrearCliente() {
       toast.success(`Cliente "${cliente.nombre}" creado`)
     },
     onError: (error) => toast.error(mensajeError(error)),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['clientes', 'buscar'] }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['clientes'] }),
   })
 }

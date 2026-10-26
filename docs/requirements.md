@@ -56,6 +56,7 @@ No hay sistemas externos ni procesos automáticos en el MVP.
 | FR-010 | Al crear un pedido, el dueño puede elegir un cliente existente o crear uno nuevo con nombre y teléfono (teléfono opcional). | MVP-2 | Crear un cliente desde el formulario del pedido no obliga a salir de ese formulario. | Must |
 | FR-011 | El sistema sugiere clientes existentes al escribir nombre o teléfono. | MVP-2 | Al teclear "Mar", aparecen los clientes cuyo nombre o teléfono contiene "Mar". | Should |
 | FR-012 | El dueño puede ver el historial de pedidos y el saldo de un cliente. | MVP-7 | La ficha del cliente muestra sus pedidos y el saldo total pendiente según BR-004. | Should |
+| FR-013 | No se repiten clientes por teléfono: se comparan solo los dígitos (sin espacios, guiones, paréntesis ni el +1 del país). Al crear un cliente con un número que ya tiene otro cliente activo, la app dice de quién es y ofrece elegirlo. | Pedido del dueño (2026-10-26): se estaban creando clientes duplicados | Con María en 809-555-0101, crear "María P." con (809) 555 0101 se rechaza con "Ese teléfono ya es de María Pérez"; buscar 8095550101 la encuentra. El número de un cliente desactivado sí se puede usar. | Must |
 
 ### Pedidos (D1)
 

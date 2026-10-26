@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Input } from '@/components/ui/input'
 import { useClientesConSaldo } from '@/features/pagos/queries'
 import { formatDinero } from '@/lib/dinero'
+import { digitosTelefono } from '@/lib/telefono'
 
 const normalizar = (s: string) =>
   s
@@ -18,8 +19,14 @@ export function ClientesPage() {
   const clientes = useClientesConSaldo()
   const [texto, setTexto] = useState('')
   const q = normalizar(texto.trim())
+  // FR-013: el teléfono se busca por sus dígitos ("8095550101" encuentra "809-555-0101").
+  const digitos = /^[\d\s()+.-]+$/.test(q) ? digitosTelefono(q) : ''
   const lista = (clientes.data ?? []).filter(
-    (c) => !q || normalizar(c.nombre).includes(q) || (c.telefono ?? '').includes(q),
+    (c) =>
+      !q ||
+      normalizar(c.nombre).includes(q) ||
+      (c.telefono ?? '').includes(q) ||
+      (!!digitos && digitosTelefono(c.telefono).includes(digitos)),
   )
 
   return (
