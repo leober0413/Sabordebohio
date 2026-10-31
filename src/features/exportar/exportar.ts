@@ -94,6 +94,8 @@ export async function exportarGastos(r: Rango) {
       { titulo: 'Compra de ingrediente', valor: (g) => siNo(g.compra_id) },
       { titulo: 'Anulado', valor: (g) => siNo(g.anulado_en) },
       { titulo: 'Registrado por', valor: (g) => g.perfiles?.nombre },
+      // Al final, para no mover las columnas de quien ya usa estas hojas.
+      { titulo: 'Cantidad', valor: (g) => g.cantidad },
     ]),
   )
   return data.length

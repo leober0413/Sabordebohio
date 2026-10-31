@@ -96,7 +96,7 @@ create type tipo_mov_ingrediente as enum ('compra', 'ajuste', 'conteo');
 | `compras` | `ingrediente_id`, `cantidad numeric(12,3)`, `costo_total numeric(12,2)`, `fecha`, `anulado_en null` | `cantidad > 0`; `costo_total ≥ 0` |
 | `movimientos_ingrediente` | `ingrediente_id`, `cantidad numeric(12,3)` (con signo), `tipo`, `motivo null`, `compra_id null` | `cantidad <> 0`; `compra` exige `compra_id` |
 | `categorias_gasto` | `nombre`, `activo`, `es_sistema bool` | "Ingredientes" es de sistema (no se desactiva) |
-| `gastos` | `categoria_id`, `monto`, `fecha`, `descripcion`, `compra_id null unique`, `anulado_en null` | `monto > 0` |
+| `gastos` | `categoria_id`, `monto` (el total), `cantidad int null` (FR-064: unidades; precio por unidad = monto / cantidad), `fecha`, `descripcion`, `compra_id null unique`, `anulado_en null` | `monto > 0`, `cantidad` entre 1 y 999 |
 | `actividad` | `creado_en`, `creado_por null` (null = seed, migración o sistema), `transaccion bigint` (`txid_current()`), `entidad`, `entidad_id text`, `accion` (`crear`, `editar`, `anular`, `restaurar`), `antes jsonb`, `despues jsonb` | única (`transaccion`, `entidad`, `entidad_id`): una acción = una fila. Solo la escriben triggers (DEC-007) |
 
 ### Vistas (lectura)

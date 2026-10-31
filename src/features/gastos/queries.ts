@@ -57,6 +57,7 @@ export function useCrearGasto() {
     mutationFn: async (d: {
       categoria_id: string
       monto: number
+      cantidad: number | null
       fecha: string
       descripcion: string | null
     }) => {

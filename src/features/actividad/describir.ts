@@ -79,6 +79,7 @@ const CAMPOS: Record<string, Array<[campo: string, etiqueta: string, formato: Fo
   ],
   gasto: [
     ['categoria', 'Categoría', texto],
+    ['cantidad', 'Cantidad', numero],
     ['monto', 'Monto', dinero],
     ['fecha', 'Fecha', fecha],
     ['descripcion', 'Descripción', texto],
@@ -323,7 +324,12 @@ export function describir(e: EntradaActividad): Descripcion | null {
           enlace: '/gastos',
         }
       }
-      const detalle = unir(texto(despues.categoria), despues.descripcion as string | null)
+      const cantidad = Number(despues.cantidad)
+      const detalle = unir(
+        texto(despues.categoria),
+        despues.descripcion as string | null,
+        cantidad > 1 ? `${cantidad} × ${dinero(Number(despues.monto) / cantidad)}` : null,
+      )
       return describirAnulable(e, despues, 'un gasto', 'dinero', detalle, '/gastos')
     }
     case 'compra': {

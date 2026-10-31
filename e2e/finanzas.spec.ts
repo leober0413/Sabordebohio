@@ -54,3 +54,26 @@ test('anular un gasto y deshacer', async ({ page }) => {
     .click()
   await expect(fila.getByRole('button', { name: 'Anular' })).toBeVisible()
 })
+
+// FR-064: con cantidad se escribe el precio por unidad y se guarda el total.
+test('un gasto con cantidad guarda cantidad × precio', async ({ page }) => {
+  await entrarComoDueno(page)
+  await page.goto('/gastos/nuevo')
+  const detalle = `Cajas E2E ${Date.now()}`
+  const mas = page.getByRole('button', { name: 'Agregar una de unidades' })
+  await mas.click()
+  await mas.click()
+  await expect(page.getByRole('textbox', { name: 'Cantidad de unidades' })).toHaveValue('3')
+  await page.getByLabel('Precio por unidad (RD$)').fill('150')
+  await expect(page.getByText('Total: 3 × RD$150.00 = RD$450.00')).toBeVisible()
+  await page.getByLabel('Categoría').selectOption({ label: 'Empaques' })
+  await page.getByLabel('Detalle (opcional)').fill(detalle)
+  await page.getByRole('button', { name: 'Registrar gasto' }).click()
+
+  const fila = page
+    .getByRole('list', { name: 'Gastos' })
+    .getByRole('listitem')
+    .filter({ hasText: detalle })
+  await expect(fila).toContainText('RD$450.00')
+  await expect(fila).toContainText('3 × RD$150.00')
+})
