@@ -114,6 +114,10 @@ describe('describir', () => {
       describir(entrada({ entidad: 'gasto', accion: 'restaurar', despues: gasto }))?.titulo,
     ).toBe('Restauró un gasto de RD$500.00')
     expect(describir(entrada({ entidad: 'gasto', despues: gasto }))?.detalle).toBe('Gas · Tanque')
+    expect(
+      describir(entrada({ entidad: 'gasto', despues: { ...gasto, monto: 450, cantidad: 3 } }))
+        ?.detalle,
+    ).toBe('Gas · Tanque · 3 × RD$150.00')
   })
 
   it('inventario: compra, tanda, conteo y ajuste', () => {

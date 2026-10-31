@@ -1,16 +1,26 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Save } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 
 import { FieldError } from '@/components/FieldError'
+import { Stepper } from '@/components/Stepper'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useCrearGasto, type Categoria } from '@/features/gastos/queries'
-import { gastoSchema, type GastoInput, type GastoOutput } from '@/features/gastos/schemas'
+import {
+  gastoSchema,
+  totalGasto,
+  type GastoInput,
+  type GastoOutput,
+} from '@/features/gastos/schemas'
+import { formatDinero } from '@/lib/dinero'
 import { hoySD } from '@/lib/fechas'
 
-/** FR-064: gasto suelto (gas, empaques…). Las compras de ingredientes se registran en Inventario. */
+/**
+ * FR-064: gasto suelto (gas, empaques…). Con cantidad > 1 se escribe el precio
+ * por unidad y se guarda el total. Las compras de ingredientes van en Inventario.
+ */
 export function GastoForm({
   categorias,
   onListo,
@@ -21,8 +31,9 @@ export function GastoForm({
   const crear = useCrearGasto()
   // "Ingredientes" se usa para compras, que se registran desde Inventario.
   const opciones = categorias.filter((c) => c.activo && !c.es_sistema)
-  const vacio = { categoriaId: '', monto: '', fecha: hoySD(), descripcion: '' }
+  const vacio = { categoriaId: '', cantidad: 1, monto: '', fecha: hoySD(), descripcion: '' }
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -31,12 +42,15 @@ export function GastoForm({
     resolver: zodResolver(gastoSchema),
     defaultValues: vacio,
   })
+  const [cantidad, monto] = useWatch({ control, name: ['cantidad', 'monto'] })
+  const precio = /^\d+(\.\d{1,2})?$/.test(monto.trim()) ? Number(monto) : 0
 
   const onSubmit = (v: GastoOutput) =>
     crear.mutate(
       {
         categoria_id: v.categoriaId,
-        monto: v.monto,
+        monto: totalGasto(v.cantidad, v.monto),
+        cantidad: v.cantidad > 1 ? v.cantidad : null,
         fecha: v.fecha,
         descripcion: v.descripcion || null,
       },
@@ -58,9 +72,21 @@ export function GastoForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium">Cantidad</span>
+        <Controller
+          control={control}
+          name="cantidad"
+          render={({ field }) => (
+            <Stepper value={field.value} onChange={field.onChange} label="unidades" min={1} />
+          )}
+        />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="gasto-monto">Monto (RD$)</Label>
+          <Label htmlFor="gasto-monto">
+            {cantidad > 1 ? 'Precio por unidad (RD$)' : 'Monto (RD$)'}
+          </Label>
           <Input
             id="gasto-monto"
             inputMode="decimal"
@@ -106,6 +132,12 @@ export function GastoForm({
           <FieldError id="gasto-descripcion-error" message={errors.descripcion?.message} />
         </div>
       </div>
+      {cantidad > 1 && (
+        <p className="text-sm text-muted-foreground tabular" aria-live="polite">
+          Total: {cantidad} × {formatDinero(precio)} ={' '}
+          <strong className="text-foreground">{formatDinero(totalGasto(cantidad, precio))}</strong>
+        </p>
+      )}
       <Button type="submit" size="lg" disabled={crear.isPending}>
         <Save aria-hidden />
         {crear.isPending ? 'Guardando…' : 'Registrar gasto'}

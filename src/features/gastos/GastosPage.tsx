@@ -82,6 +82,7 @@ export function GastosPage() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formatFechaCorta(g.fecha)} · {g.categorias_gasto?.nombre}
+                      {g.cantidad && ` · ${g.cantidad} × ${formatDinero(g.monto / g.cantidad)}`}
                       {g.perfiles?.nombre && ` · ${g.perfiles.nombre}`}
                       {g.anulado_en && ' · anulado'}
                     </p>

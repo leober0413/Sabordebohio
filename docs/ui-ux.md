@@ -9,7 +9,7 @@
 
 1. **Velocidad sobre todo.** Las acciones frecuentes (nuevo pedido, marcar entregado, cobrar) están a un toque. Valores por defecto inteligentes: fecha = hoy, cantidad +1, pago = efectivo.
 2. **Una mano en el celular.** Navegación y botones principales en la mitad inferior de la pantalla, al alcance del pulgar. Áreas táctiles de al menos 44 × 44 px.
-3. **Números, no texto.** Cantidades con botones **− / +** grandes en vez de teclear. Montos con teclado numérico.
+3. **Números, no texto.** Cantidades con botones **− / +** grandes en vez de teclear; en pedidos y tandas, **+12** suma una docena de un toque y debajo del sabor se lee "2 docenas y 4". Montos con teclado numérico.
 4. **Lo urgente arriba.** Pedidos atrasados y alertas de stock bajo aparecen primero, con color, sin que haya que buscarlos.
 5. **Feedback inmediato.** Cada acción responde al instante (actualización optimista) y confirma con un aviso breve; errores claros en español, sin jerga.
 6. **Deshacer en vez de preguntar.** Acciones reversibles (marcar entregado, registrar pago) muestran "Deshacer" durante unos segundos en lugar de un diálogo "¿Está seguro?". Solo lo destructivo pide confirmación.
@@ -65,8 +65,8 @@ El botón **[+]** central abre un menú rápido: *Nuevo pedido* (principal) · *
 - Lista de pedidos del día por hora: cliente, productos, total, estado de pago. Botón de acción según estado (*Listo* → *Entregar*). Deslizar para cobrar.
 
 **Nuevo pedido** (drawer en celular)
-1. Cliente: buscador con sugerencias; "Nuevo cliente" en línea.
-2. Productos: una fila por sabor con **− cantidad +**; total en vivo.
+1. Cliente: buscador con sugerencias (el teléfono se encuentra escrito de cualquier forma); "Nuevo cliente" en línea. Si el teléfono ya es de otro cliente, avisa de quién es y ofrece "Usar a …" en vez de crear otro (FR-013).
+2. Productos: una fila por sabor con **− cantidad + +12**; total en vivo.
 3. Entrega: *Hoy* preseleccionado, hora opcional, *Recoge / Delivery* (+ costo de envío).
 4. Pago: *Pagado (efectivo / transferencia)* · *Fiado* · *Parcial*.
 5. Botón grande "Guardar pedido" fijo abajo.

@@ -13,6 +13,7 @@ import { ClienteSelector } from '@/features/clientes/ClienteSelector'
 import type { DatosPedido } from '@/features/pedidos/queries'
 import { pedidoSchema, totalUnidades, type PedidoFormValues } from '@/features/pedidos/schemas'
 import { formatDinero } from '@/lib/dinero'
+import { enDocenas } from '@/lib/docenas'
 import { hoySD, sumarDias } from '@/lib/fechas'
 import { calcularPrecio } from '@/lib/precio'
 
@@ -125,14 +126,24 @@ export function PedidoForm({
         </h2>
         <ul className="flex flex-col divide-y rounded-xl border bg-card">
           {productos.map((p) => (
-            <li key={p.id} className="flex items-center justify-between gap-3 px-3 py-2">
-              <span className="font-medium">{p.nombre}</span>
+            <li key={p.id} className="flex items-center justify-between gap-2 px-3 py-2">
+              <div className="min-w-0">
+                <p className="font-medium">{p.nombre}</p>
+                <p className="text-xs text-muted-foreground tabular">
+                  {enDocenas(cantidades[p.id] ?? 0)}
+                </p>
+              </div>
               <Controller
                 control={control}
                 name={`cantidades.${p.id}`}
                 defaultValue={0}
                 render={({ field }) => (
-                  <Stepper value={field.value ?? 0} onChange={field.onChange} label={p.nombre} />
+                  <Stepper
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    label={p.nombre}
+                    conDocena
+                  />
                 )}
               />
             </li>

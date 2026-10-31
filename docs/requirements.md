@@ -56,6 +56,7 @@ No hay sistemas externos ni procesos automáticos en el MVP.
 | FR-010 | Al crear un pedido, el dueño puede elegir un cliente existente o crear uno nuevo con nombre y teléfono (teléfono opcional). | MVP-2 | Crear un cliente desde el formulario del pedido no obliga a salir de ese formulario. | Must |
 | FR-011 | El sistema sugiere clientes existentes al escribir nombre o teléfono. | MVP-2 | Al teclear "Mar", aparecen los clientes cuyo nombre o teléfono contiene "Mar". | Should |
 | FR-012 | El dueño puede ver el historial de pedidos y el saldo de un cliente. | MVP-7 | La ficha del cliente muestra sus pedidos y el saldo total pendiente según BR-004. | Should |
+| FR-013 | No se repiten clientes por teléfono: se comparan solo los dígitos (sin espacios, guiones, paréntesis ni el +1 del país). Al crear un cliente con un número que ya tiene otro cliente activo, la app dice de quién es y ofrece elegirlo. | Pedido del dueño (2026-10-26): se estaban creando clientes duplicados | Con María en 809-555-0101, crear "María P." con (809) 555 0101 se rechaza con "Ese teléfono ya es de María Pérez"; buscar 8095550101 la encuentra. El número de un cliente desactivado sí se puede usar. | Must |
 
 ### Pedidos (D1)
 
@@ -106,7 +107,7 @@ No hay sistemas externos ni procesos automáticos en el MVP.
 | FR-062 | El dueño puede registrar un conteo o ajuste manual del stock de un ingrediente. | MVP-6 | Contar "quedan 1.5 lb" genera el movimiento necesario para que el stock sea 1.5. | Must |
 | FR-063 | **Alerta de stock bajo dentro de la app:** cuando un ingrediente está en o por debajo de su mínimo, aparece un aviso visible en "Hoy" y un indicador (contador) en el menú de Inventario, con la lista de lo que se está acabando. La alerta desaparece sola cuando el stock vuelve a superar el mínimo. | MVP-6, pedido explícito de los dueños | Con queso = 1.5 y mínimo 2, aparece el aviso en "Hoy" y el contador muestra 1. Al registrar una compra de 5 lb, el aviso desaparece. Un ingrediente sin mínimo nunca genera alerta. | Must |
 | FR-065 | El dueño puede **crear, cambiar o quitar el mínimo** de cualquier ingrediente o producto en cualquier momento desde la app. | Pedido explícito de los dueños | Cambiar el mínimo del queso de 2 a 3 lb con stock = 2.5 hace aparecer la alerta de inmediato. | Must |
-| FR-064 | El dueño puede registrar **otros gastos** no ligados a ingredientes (gas, empaques, transporte), con monto, categoría y fecha. Las categorías son editables. | D3 (confirmado por los dueños) | Un gasto de gas de RD$1,200 aparece en el resumen financiero. | Must |
+| FR-064 | El dueño puede registrar **otros gastos** no ligados a ingredientes (gas, empaques, transporte), con monto, categoría y fecha, y opcionalmente la **cantidad** (con más de 1 se escribe el precio por unidad y se guarda el total). Las categorías son editables. | D3 (confirmado por los dueños); cantidad: pedido del dueño (2026-10-31) | Un gasto de gas de RD$1,200 aparece en el resumen financiero. 3 paquetes de empaques a RD$150 se guardan como un gasto de RD$450 que dice "3 × RD$150.00". | Must |
 
 ### Finanzas (D3)
 

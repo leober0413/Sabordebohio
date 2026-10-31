@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useProductos } from '@/features/ajustes/queries'
 import { useRegistrarTanda } from '@/features/inventario/queries'
+import { enDocenas } from '@/lib/docenas'
 import { hoySD } from '@/lib/fechas'
 
 /** FR-050: cantidades producidas por sabor. */
@@ -57,12 +58,18 @@ export function TandaPage() {
             {productos.data
               .filter((p) => p.activo)
               .map((p) => (
-                <li key={p.id} className="flex items-center justify-between gap-3 px-3 py-2">
-                  <span className="font-medium">{p.nombre}</span>
+                <li key={p.id} className="flex items-center justify-between gap-2 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="font-medium">{p.nombre}</p>
+                    <p className="text-xs text-muted-foreground tabular">
+                      {enDocenas(cantidades[p.id] ?? 0)}
+                    </p>
+                  </div>
                   <Stepper
                     value={cantidades[p.id] ?? 0}
                     onChange={(n) => setCantidades((c) => ({ ...c, [p.id]: n }))}
                     label={p.nombre}
+                    conDocena
                   />
                 </li>
               ))}
@@ -90,7 +97,9 @@ export function TandaPage() {
           </div>
           <Button type="submit" size="lg" disabled={total === 0 || registrar.isPending}>
             <Save aria-hidden />
-            {registrar.isPending ? 'Guardando…' : `Registrar ${total} catibías`}
+            {registrar.isPending
+              ? 'Guardando…'
+              : `Registrar ${total} catibías${enDocenas(total) ? ` (${enDocenas(total)})` : ''}`}
           </Button>
         </form>
       )}

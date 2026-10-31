@@ -88,13 +88,13 @@ isOneToOne: false
                   ]
                 },"clientes": {
                   Row: {
-                    "activo": boolean,"creado_en": string,"id": string,"nombre": string,"notas": string | null,"telefono": string | null
+                    "activo": boolean,"creado_en": string,"id": string,"nombre": string,"notas": string | null,"telefono": string | null,"telefono_digitos": string | null
                   }
                   Insert: {
-                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre": string,"notas"?: string | null,"telefono"?: string | null
+                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre": string,"notas"?: string | null,"telefono"?: string | null,"telefono_digitos"?: never
                   }
                   Update: {
-                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre"?: string,"notas"?: string | null,"telefono"?: string | null
+                    "activo"?: boolean,"creado_en"?: string,"id"?: string,"nombre"?: string,"notas"?: string | null,"telefono"?: string | null,"telefono_digitos"?: never
                   }
                   Relationships: [
                     
@@ -151,13 +151,13 @@ isOneToOne: false
                   ]
                 },"gastos": {
                   Row: {
-                    "anulado_en": string | null,"categoria_id": string,"compra_id": string | null,"creado_en": string,"creado_por": string,"descripcion": string | null,"fecha": string,"id": string,"monto": number
+                    "anulado_en": string | null,"cantidad": number | null,"categoria_id": string,"compra_id": string | null,"creado_en": string,"creado_por": string,"descripcion": string | null,"fecha": string,"id": string,"monto": number
                   }
                   Insert: {
-                    "anulado_en"?: string | null,"categoria_id": string,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"descripcion"?: string | null,"fecha": string,"id"?: string,"monto": number
+                    "anulado_en"?: string | null,"cantidad"?: number | null,"categoria_id": string,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"descripcion"?: string | null,"fecha": string,"id"?: string,"monto": number
                   }
                   Update: {
-                    "anulado_en"?: string | null,"categoria_id"?: string,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"descripcion"?: string | null,"fecha"?: string,"id"?: string,"monto"?: number
+                    "anulado_en"?: string | null,"cantidad"?: number | null,"categoria_id"?: string,"compra_id"?: string | null,"creado_en"?: string,"creado_por"?: string,"descripcion"?: string | null,"fecha"?: string,"id"?: string,"monto"?: number
                   }
                   Relationships: [
                     {

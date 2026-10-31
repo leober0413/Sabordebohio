@@ -88,6 +88,8 @@ Fases 3 y 4 son independientes entre sí después de la 2.
 
 - Guía para cambiar la contraseña temporal al primer inicio (PR #10).
 - Actividad: registro de quién hizo qué y cuándo, con antes → después (FR-083, DEC-007).
+- Clientes sin duplicar por teléfono (FR-013) y "+12" para contar por docenas en pedidos y tandas.
+- Cantidad en los gastos: cantidad × precio por unidad (FR-064).
 
 ## Después del MVP (no planificado)
 
